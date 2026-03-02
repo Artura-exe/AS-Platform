@@ -1,0 +1,753 @@
+/* ============================================
+   ASサービス申込フォーム - スタイルシート
+   コンパクト＆スタイリッシュ
+   ============================================ */
+
+/* --- CSS Variables --- */
+:root {
+  --primary-red: #c0392b;
+  --primary-red-light: #f2dede;
+  --primary-gradient: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #a93226 100%);
+  --section-header-bg: linear-gradient(135deg, #e74c3c 0%, #c0392b 60%, #962d22 100%);
+  --section-header-text: #fff;
+  --accent-pink: #f8e0e0;
+  --text-dark: #2c3e50;
+  --text-label: #4a5568;
+  --text-light: #fff;
+  --text-muted: #999;
+  --border-color: #cbd5e0;
+  --border-light: #e2e8f0;
+  --bg-white: #fff;
+  --bg-body: linear-gradient(135deg, #667eea11 0%, #764ba211 100%), #f0f2f5;
+  --bg-field: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  --bg-gray: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+  --font-family: 'Noto Sans JP', 'メイリオ', Meiryo, sans-serif;
+  --radius: 4px;
+  --radius-lg: 8px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 13px;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--text-dark);
+  background: var(--bg-body);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* --- Page Container --- */
+.page-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-lg);
+  min-height: 100vh;
+  border-radius: 0;
+}
+
+/* --- Logo Header --- */
+.logo-header {
+  text-align: center;
+  padding: 24px 20px 14px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, transparent, #c0392b, transparent) 1;
+}
+
+.logo-header img {
+  height: 50px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.logo-header .subtitle {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* --- Section Header --- */
+.section-header {
+  background: var(--section-header-bg);
+  color: var(--section-header-text);
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+
+/* --- Form Layout --- */
+.form-section {
+  padding: 12px 20px;
+}
+
+/* テーブル風2カラムレイアウト */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.form-grid.single-col {
+  grid-template-columns: 1fr;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  min-height: 36px;
+}
+
+.form-row:last-child {
+  border-bottom: none;
+}
+
+.form-row.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  flex-shrink: 0;
+  width: 100px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  color: var(--text-label);
+  font-weight: 500;
+  background: var(--bg-field);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border-light);
+  transition: var(--transition);
+}
+
+.form-label .required {
+  color: var(--primary-red);
+  font-size: 0.7rem;
+  margin-right: 2px;
+}
+
+.form-value {
+  flex: 1;
+  padding: 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.form-value .sub-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* --- Input Fields --- */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-family: var(--font-family);
+  background: var(--bg-white);
+  transition: var(--transition);
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+  height: 28px;
+}
+
+input[type="date"] {
+  height: 28px;
+}
+
+select {
+  height: 28px;
+  cursor: pointer;
+}
+
+/* サイズバリエーション */
+.input-xs {
+  width: 60px;
+}
+
+.input-sm {
+  width: 90px;
+}
+
+.input-md {
+  width: 140px;
+}
+
+.input-lg {
+  width: 200px;
+}
+
+.input-xl {
+  width: 280px;
+}
+
+.input-full {
+  width: 100%;
+}
+
+/* --- Checkbox & Radio --- */
+.checkbox-group,
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.checkbox-group label,
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary-red);
+  cursor: pointer;
+}
+
+/* --- ②店舗情報 スクロールエリア --- */
+.store-scroll-area {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  background: var(--bg-field);
+  padding: 8px;
+}
+
+.store-entry {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  position: relative;
+}
+
+.store-entry:last-child {
+  margin-bottom: 0;
+}
+
+.store-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.store-row input {
+  flex: 1;
+  min-width: 80px;
+}
+
+.store-row input:first-child {
+  flex: 2;
+}
+
+.store-entry .btn-remove-store {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: none;
+  border: none;
+  color: var(--primary-red);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.store-entry .btn-remove-store:hover {
+  opacity: 1;
+}
+
+.store-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 0;
+}
+
+/* --- ④商品テーブル --- */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.product-table thead th {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  padding: 6px 6px;
+  text-align: center;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid #c0392b;
+  font-size: 0.75rem;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.product-table tbody td {
+  padding: 4px 6px;
+  border: 1px solid var(--border-light);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.product-table tbody td:first-child {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.product-table input[type="number"],
+.product-table input[type="text"] {
+  width: 100%;
+  text-align: right;
+}
+
+.support-checks {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+
+.support-checks label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+/* --- ⑤金融機関 --- */
+.bank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.bank-grid .form-row {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.bank-grid .form-row.full-width {
+  grid-column: 1 / -1;
+}
+
+.yucho-fields {
+  background: var(--bg-field);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  margin-top: 4px;
+}
+
+.yucho-fields .form-row {
+  border: none;
+  min-height: 30px;
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 18px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-family);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: var(--text-light);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+}
+
+/* --- Footer --- */
+.form-footer {
+  text-align: center;
+  padding: 20px 20px 28px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, transparent, #c0392b, transparent) 1;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* --- Toast --- */
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  color: var(--text-light);
+  font-size: 0.85rem;
+  z-index: 2000;
+  opacity: 0;
+  transform: translateY(-16px);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+}
+
+.toast.info {
+  background: linear-gradient(135deg, #e74c3c, #f39c12);
+}
+
+/* --- Separator --- */
+.separator {
+  height: 1px;
+  background: var(--border-light);
+  margin: 0;
+}
+
+/* --- Responsive --- */
+@media (max-width: 700px) {
+  html {
+    font-size: 12px;
+  }
+
+  .form-grid,
+  .bank-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .form-row {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    width: 80px;
+  }
+
+  .page-wrapper {
+    margin: 0;
+  }
+}
+
+/* PDF添付欄 */
+.pdf-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--bg-field);
+}
+
+.pdf-upload-area:hover,
+.pdf-upload-area.drag-over {
+  border-color: var(--primary-red);
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(192, 57, 43, 0.05) 100%);
+}
+
+.pdf-upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.pdf-upload-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.pdf-upload-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.pdf-file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-field);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+}
+
+.pdf-file-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.pdf-file-size {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-remove-pdf {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--primary-red);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+
+.btn-remove-pdf:hover {
+  background: var(--primary-red);
+  color: #fff;
+}
+
+/* ステップインジケーター */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 16px 20px;
+  margin-bottom: 4px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+  transition: var(--transition);
+}
+
+.step.active {
+  opacity: 1;
+}
+
+.step.done {
+  opacity: 0.7;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-gray);
+  color: var(--text-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.step.active .step-num {
+  background: var(--primary-gradient);
+  color: #fff;
+}
+
+.step.done .step-num {
+  background: #27ae60;
+  color: #fff;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.step-line {
+  width: 50px;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 8px;
+  transition: var(--transition);
+}
+
+.step-line.done {
+  background: #27ae60;
+}
+
+/* 確認画面 */
+.confirm-section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--section-header-bg);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  margin: 16px 0 8px;
+}
+
+.confirm-section-title:first-child {
+  margin-top: 0;
+}
+
+.confirm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.confirm-table th {
+  background: var(--accent-pink);
+  color: var(--text-label);
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 600;
+  width: 160px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.confirm-table td {
+  padding: 6px 12px;
+  color: var(--text-dark);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* 完了画面 */
+.complete-card {
+  text-align: center;
+  padding: 60px 30px;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin: 20px 0;
+}
+
+.complete-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.complete-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 12px;
+}
+
+.complete-message {
+  font-size: 0.85rem;
+  color: var(--text-label);
+  line-height: 1.7;
+  margin: 0;
+}
