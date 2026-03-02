@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>テストデータ注入</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f0f4f8;
+        }
+
+        .msg {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        .ok {
+            color: #16a34a;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        a {
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="msg">
+        <p class="ok" id="status">テストデータを作成中...</p>
+        <p id="detail"></p>
+    </div>
+    <script>
+        const now = Date.now();
+        const testData = [
+            {
+                id: now,
+                status: '1次申込完了',
+                pdfFileName: '',
+                submittedAt: new Date().toISOString(),
+                submittedBy: 'user',
+                applicationDate: '2026-02-25',
+                companyName: '株式会社テスト1次',
+                contactName: 'テスト一郎',
+                phone: '090-1111-1111',
+                email: 'test1@example.com',
+                stores: [{ storeName: 'テスト支店1' }],
+                billing: { company: true },
+                products: [{ name: 'AS', unitPrice: 50000, quantity: 1 }],
+                contract: { rows: [{ service: 'ASサービス', unitPrice: 10000, quantity: 1 }] },
+                propertyAmount: {},
+                salesRepName: 'アドバンス 太郎',
+                salesRepEmail: 'sales@example.com'
+            },
+            {
+                id: now + 1,
+                status: '申込完了',
+                pdfFileName: 'sample.pdf',
+                submittedAt: new Date().toISOString(),
+                submittedBy: 'user',
+                applicationDate: '2026-02-25',
+                companyName: '有限会社テスト2次',
+                contactName: 'テスト二郎',
+                phone: '090-2222-2222',
+                email: 'test2@example.com',
+                propertyAmount: { propertyPrice: 1000000, payCash: true },
+                salesRepName: 'アドバンス 花子',
+                salesRepEmail: 'hanako@example.com'
+            },
+            {
+                id: now + 2,
+                status: '完了',
+                pdfFileName: '',
+                submittedAt: new Date().toISOString(),
+                submittedBy: 'admin',
+                applicationDate: '2026-02-20',
+                companyName: '株式会社完了商事',
+                contactName: '完了三郎',
+                phone: '03-3333-3333',
+                email: 'kanryo@example.com',
+                status: '完了'
+            }
+        ];
+
+        // 既存データに追加
+        localStorage.setItem('as_applications', JSON.stringify(testData));
+
+        document.getElementById('status').textContent = '✅ 3種類のテストデータをリセット注入しました！';
+        document.getElementById('detail').innerHTML =
+            '1. 1次申込完了 (user) / 2. 申込完了 (user) / 3. 完了 (admin)<br><br>' +
+            '<a href="login.html">→ ログイン画面へ</a>';
+    </script>
+</body>
+
+</html>

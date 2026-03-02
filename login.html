@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASサービス申込 - ログイン</title>
+    <meta name="description" content="ATOM ASサービス申込 ログイン画面">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 40%, #962d22 100%);
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            max-width: 90vw;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+            text-align: center;
+            padding: 30px 20px 20px;
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, transparent, #c0392b, transparent) 1;
+        }
+
+        .login-header img {
+            height: 55px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .login-header .subtitle {
+            display: block;
+            font-size: 0.7rem;
+            color: #999;
+            letter-spacing: 3px;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        .login-header .page-title {
+            margin-top: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c0392b;
+            letter-spacing: 1px;
+        }
+
+        .login-body {
+            padding: 28px 32px 32px;
+        }
+
+        .login-field {
+            margin-bottom: 18px;
+        }
+
+        .login-field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .login-field input {
+            width: 100%;
+            height: 40px;
+            padding: 0 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: 'Noto Sans JP', sans-serif;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            background: #fff;
+        }
+
+        .login-field input:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.15);
+        }
+
+        .login-field input::placeholder {
+            color: #a0aec0;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 44px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.35);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 6px;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .login-error {
+            display: none;
+            background: linear-gradient(135deg, #fff5f5, #fed7d7);
+            color: #c53030;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 14px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .login-error.show {
+            display: block;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-6px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(6px);
+            }
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 0 32px 24px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="login-header">
+            <img src="assets/logo.svg" alt="ATOM">
+            <span class="subtitle">ADVANCE TOTAL OFFICE MANAGEMENT</span>
+            <div class="page-title">ASサービス申込</div>
+        </div>
+
+        <div class="login-body">
+            <div class="login-error" id="loginError">ユーザーIDまたはパスワードが正しくありません</div>
+
+            <div class="login-field">
+                <label for="userId">ユーザーID</label>
+                <input type="text" id="userId" placeholder="ユーザーIDを入力" autofocus>
+            </div>
+
+            <div class="login-field">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" placeholder="パスワードを入力">
+            </div>
+
+            <button class="login-btn" onclick="handleLogin()">ログイン</button>
+        </div>
+
+        <div class="login-footer">
+            &copy; 2026 ATOM - Advance Total Office Management
+        </div>
+    </div>
+
+    <script>
+        // Enterキーでログイン
+        document.getElementById('password').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('userId').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') document.getElementById('password').focus();
+        });
+
+        function handleLogin() {
+            const userId = document.getElementById('userId').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            // 入力チェック
+            if (!userId || !password) {
+                errorEl.textContent = 'ユーザーIDとパスワードを入力してください';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            // 認証チェック
+            const accounts = {
+                admin: { password: 'admin', role: 'admin', redirect: 'admin.html' },
+                user: { password: 'user', role: 'user', redirect: 'admin.html' },
+            };
+
+            const account = accounts[userId];
+            if (!account || account.password !== password) {
+                errorEl.textContent = 'ユーザーIDまたはパスワードが正しくありません';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            sessionStorage.setItem('as_login_user', userId);
+            sessionStorage.setItem('as_logged_in', 'true');
+            sessionStorage.setItem('as_role', account.role);
+
+            window.location.href = account.redirect;
+        }
+    </script>
+
+</body>
+
+</html>
