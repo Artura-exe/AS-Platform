@@ -1,0 +1,467 @@
+# AS-Platform
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASサービス申込</title>
+    <meta name="description" content="ATOM ASサービス申込フォーム">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <!-- Logo Header -->
+        <div class="logo-header" style="position:relative;">
+            <img src="assets/logo.svg" alt="ATOM">
+            <span class="subtitle">ADVANCE TOTAL OFFICE MANAGEMENT</span>
+            <div style="font-size:1rem; font-weight:700; color:#333; margin-top:4px;">ASサービス申込</div>
+            <button type="button" onclick="handleLogout()"
+                style="position:absolute; top:12px; right:14px; background:rgba(0,0,0,0.06); border:1px solid rgba(0,0,0,0.1); border-radius:4px; padding:4px 14px; font-size:0.75rem; font-weight:600; color:#555; cursor:pointer;">ログアウト</button>
+        </div>
+
+        <!-- ステップインジケーター -->
+        <div class="step-indicator">
+            <div class="step active" id="stepInd1"><span class="step-num">1</span><span class="step-label">入力</span>
+            </div>
+            <div class="step-line" id="stepLine1"></div>
+            <div class="step" id="stepInd2"><span class="step-num">2</span><span class="step-label">確認</span></div>
+            <div class="step-line" id="stepLine2"></div>
+            <div class="step" id="stepInd3"><span class="step-num">3</span><span class="step-label">完了</span></div>
+        </div>
+
+        <!-- ===== 入力画面 ===== -->
+        <div id="step-input">
+
+            <!-- ==================== ①お申込み情報 ==================== -->
+            <div class="section-header">①お申込み情報</div>
+            <div class="form-section">
+                <div class="form-grid">
+                    <!-- 申込日 + 申込種別 -->
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>お申込日</div>
+                        <div class="form-value">
+                            <input type="date" id="applicationDate" class="input-md">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>申込種別</div>
+                        <div class="form-value">
+                            <select id="applicationType" class="input-md">
+                                <option value="">選択してください</option>
+                                <option value="新規">新規</option>
+                                <option value="追加">追加</option>
+                                <option value="変更">変更</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 会社名 + フリガナ -->
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>お申込会社名</div>
+                        <div class="form-value">
+                            <input type="text" id="companyName" class="input-lg" placeholder="会社名">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>フリガナ</div>
+                        <div class="form-value">
+                            <input type="text" id="companyKana" class="input-lg" placeholder="カイシャメイ"
+                                oninput="validateKatakana(this)">
+                        </div>
+                    </div>
+
+                    <!-- 代表者名 -->
+                    <div class="form-row">
+                        <div class="form-label">代表者名</div>
+                        <div class="form-value">
+                            <input type="text" id="representativeName" class="input-sm" placeholder="姓">
+                            <span class="sub-label">フリガナ</span>
+                            <input type="text" id="representativeKana" class="input-sm" placeholder="セイ"
+                                oninput="validateKatakana(this)">
+                        </div>
+                    </div>
+
+                    <!-- 担当者名 -->
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>担当者名</div>
+                        <div class="form-value">
+                            <input type="text" id="contactName" class="input-sm" placeholder="担当者名">
+                            <span class="sub-label">フリガナ</span>
+                            <input type="text" id="contactKana" class="input-sm" placeholder="フリガナ"
+                                oninput="validateKatakana(this)">
+                        </div>
+                    </div>
+
+                    <!-- 電話番号 + FAX -->
+                    <div class="form-row">
+                        <div class="form-label"><span class="required">※</span>電話番号</div>
+                        <div class="form-value">
+                            <input type="tel" id="phone" class="input-md" placeholder="00000000000" inputmode="numeric"
+                                oninput="validateNumeric(this)">
+                            <span class="sub-label">FAX</span>
+                            <input type="tel" id="fax" class="input-sm" placeholder="FAX番号" inputmode="numeric"
+                                oninput="validateNumeric(this)">
+                        </div>
+                    </div>
+
+                    <!-- 第二連絡先 -->
+                    <div class="form-row">
+                        <div class="form-label">第二連絡先</div>
+                        <div class="form-value">
+                            <span class="sub-label">電話番号</span>
+                            <input type="tel" id="phone2" class="input-md" placeholder="電話番号" inputmode="numeric"
+                                oninput="validateNumeric(this)">
+                        </div>
+                    </div>
+
+                    <!-- メールアドレス（全幅） -->
+                    <div class="form-row full-width">
+                        <div class="form-label"><span class="required">※</span>メールアドレス</div>
+                        <div class="form-value">
+                            <input type="email" id="email" class="input-xl" placeholder="example@example.com">
+                        </div>
+                    </div>
+
+                    <!-- 郵便番号 -->
+                    <div class="form-row full-width">
+                        <div class="form-label"><span class="required">※</span>郵便番号</div>
+                        <div class="form-value">
+                            <input type="text" id="postalCode" class="input-sm" placeholder="0000000" maxlength="8"
+                                inputmode="numeric" oninput="validateNumeric(this)">
+                            <button type="button" class="btn btn-secondary btn-sm"
+                                onclick="searchAddress('postalCode','prefecture','city','town')">住所検索</button>
+                        </div>
+                    </div>
+
+                    <!-- 住所 -->
+                    <div class="form-row full-width">
+                        <div class="form-label"><span class="required">※</span>都道府県</div>
+                        <div class="form-value">
+                            <input type="text" id="prefecture" class="input-sm" placeholder="都道府県">
+                            <span class="sub-label">市区郡</span>
+                            <input type="text" id="city" class="input-md" placeholder="市区郡">
+                            <span class="sub-label">町域</span>
+                            <input type="text" id="town" class="input-md" placeholder="町域">
+                            <span class="sub-label">丁目番号</span>
+                            <input type="text" id="block" class="input-sm" placeholder="1-2-3">
+                        </div>
+                    </div>
+
+                    <!-- 付番住所 -->
+                    <div class="form-row full-width">
+                        <div class="form-label">付番住所</div>
+                        <div class="form-value">
+                            <input type="text" id="additionalAddress" class="input-xl" placeholder="建物名・号室等">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ②店舗情報 ==================== -->
+            <div class="section-header">②店舗情報</div>
+            <div class="form-section">
+                <div class="store-scroll-area" id="storeContainer">
+                    <!-- 動的に店舗行が追加される -->
+                </div>
+                <div class="store-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addStoreEntry()">＋ 店舗を追加</button>
+                </div>
+            </div>
+
+            <!-- ==================== ③請求に関して ==================== -->
+            <div class="section-header">③請求に関して</div>
+            <div class="form-section">
+                <div class="checkbox-group" style="padding: 8px 0;">
+                    <label><input type="checkbox" id="billingCompany" onclick="syncExclusiveCheckbox(this)"> 企業宛</label>
+                    <label><input type="checkbox" id="billingStore" onclick="syncExclusiveCheckbox(this)">
+                        店舗宛</label>
+                    <label><input type="checkbox" id="billingExisting" onclick="syncExclusiveCheckbox(this)">
+                        既存と同様</label>
+                </div>
+            </div>
+
+            <!-- ==================== ④商品情報 ==================== -->
+            <div class="section-header">④商品情報</div>
+            <div class="form-section">
+                <div class="store-scroll-area" id="productContainer">
+                    <!-- 動的に商品行が追加される -->
+                </div>
+                <div class="store-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addProductEntry()">＋ 商品を追加</button>
+                </div>
+            </div>
+
+            <!-- ==================== ⑤AS契約情報 ==================== -->
+            <div class="section-header">⑤AS契約情報</div>
+            <div class="form-section">
+                <div style="padding: 6px 0; font-size: 0.85rem; color: var(--text-dark);">
+                    <div style="font-weight: 600;">AS（保守）</div>
+                </div>
+
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;"></th>
+                            <th>サービス名・プラン名</th>
+                            <th style="width:100px;">無料期間</th>
+                            <th style="width:100px;">契約期間</th>
+                            <th style="width:100px;">月額単価</th>
+                            <th style="width:60px;">数量</th>
+                            <th style="width:100px;">月額総額</th>
+                            <th style="width:120px;">備考</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contractTableBody">
+                        <!-- 動的に行が追加される -->
+                    </tbody>
+                </table>
+                <div class="store-actions">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addContractRow()">＋ 行を追加</button>
+                </div>
+            </div>
+
+            <!-- ==================== ⑥契約物件金額 ==================== -->
+            <div class="section-header">⑥契約物件金額</div>
+            <div class="form-section" id="propertySection">
+                <div class="form-grid single-col">
+                    <!-- 販売物件金額 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;">販売物件金額</div>
+                        <div class="form-value">
+                            <input type="number" id="propertyPrice" class="input-md" placeholder="例）1260000" min="0">
+                            <span class="sub-label">円</span>
+                        </div>
+                    </div>
+
+                    <!-- 支払方法 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;">支払方法</div>
+                        <div class="form-value">
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" id="payCash" onclick="syncExclusiveCheckbox(this)">
+                                    現金一括</label>
+                                <label><input type="checkbox" id="payInstallment" onclick="syncExclusiveCheckbox(this)">
+                                    割賦</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 月額クレジット - 初回 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;">月額クレジット料金<br>または物件代金</div>
+                        <div class="form-value">
+                            <span class="sub-label">初回分割支払金額</span>
+                            <input type="number" id="firstInstallment" class="input-sm" placeholder="例）15000" min="0">
+                            <span class="sub-label">円</span>
+                        </div>
+                    </div>
+
+                    <!-- 2回目以降 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"></div>
+                        <div class="form-value">
+                            <span class="sub-label">2回目以降分割支払金額</span>
+                            <input type="number" id="subsequentInstallment" class="input-sm" placeholder="例）15000"
+                                min="0">
+                            <span class="sub-label">円</span>
+                        </div>
+                    </div>
+
+                    <!-- 支払い回数 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"></div>
+                        <div class="form-value">
+                            <span class="sub-label">支払い回数</span>
+                            <input type="number" id="installmentCount" class="input-xs" placeholder="例）84" min="0">
+                            <span class="sub-label">回</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ⑦ドメイン情報 ==================== -->
+            <div class="section-header">⑦ドメイン情報</div>
+            <div class="form-section">
+                <div class="form-grid single-col">
+                    <!-- メールアドレス -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:120px;">メールアドレス</div>
+                        <div class="form-value">
+                            <input type="email" id="domainEmail" class="input-xl" placeholder="例）info@sample.co.jp">
+                        </div>
+                    </div>
+
+                    <!-- 登記年月日 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:120px;">登記年月日</div>
+                        <div class="form-value">
+                            <input type="text" id="registrationDate" class="input-md" placeholder="例）1971年12月04日">
+                        </div>
+                    </div>
+
+                    <!-- ドメイン区分 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:120px;">ドメイン区分</div>
+                        <div class="form-value">
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" id="domainNew" onclick="syncExclusiveCheckbox(this)">
+                                    新規</label>
+                                <label><input type="checkbox" id="domainTransfer" onclick="syncExclusiveCheckbox(this)">
+                                    移行</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 注意書き -->
+                <div style="padding:8px 0; font-size:0.75rem; color:var(--text-label); line-height:1.6;">
+                    <div>使用可能文字:ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-（ハイフン）</div>
+                    <div>※ドメインの読み間違いを防ぐため、全て大文字活字体で記入してください。</div>
+                    <div>※実際のドメインは全て小文字になります。</div>
+                </div>
+
+                <div class="form-grid single-col">
+                    <!-- ドメイン欄 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:120px;">ドメイン欄</div>
+                        <div class="form-value">
+                            <input type="text" id="domainName" class="input-xl" placeholder="例）ABCD1234"
+                                style="text-transform:uppercase;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TLD選択 -->
+                <div class="checkbox-group" style="padding: 8px 0;">
+                    <label><input type="checkbox" id="tldCom" onclick="syncExclusiveCheckbox(this)"> .com</label>
+                    <label><input type="checkbox" id="tldNet" onclick="syncExclusiveCheckbox(this)"> .net</label>
+                    <label><input type="checkbox" id="tldInfo" onclick="syncExclusiveCheckbox(this)"> .info</label>
+                    <label><input type="checkbox" id="tldJp" onclick="syncExclusiveCheckbox(this)"> .jp</label>
+                    <label><input type="checkbox" id="tldOther" onclick="syncExclusiveCheckbox(this)"> その他</label>
+                    <input type="text" id="tldOtherValue" class="input-sm" placeholder="">
+                </div>
+
+                <div class="form-grid single-col">
+                    <!-- 英文表記 -->
+                    <div class="form-row">
+                        <div class="form-label" style="width:120px;">英文表記</div>
+                        <div class="form-value">
+                            <input type="text" id="domainEnglish" class="input-xl" placeholder="例）ABCD01234"
+                                style="text-transform:uppercase;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 英文表記の選択 -->
+                <div class="checkbox-group" style="padding: 8px 0;">
+                    <label><input type="checkbox" id="suffixCoLtd" onclick="syncExclusiveCheckbox(this)">
+                        .co.ltd</label>
+                    <label><input type="checkbox" id="suffixInc" onclick="syncExclusiveCheckbox(this)"> .inc</label>
+                </div>
+            </div>
+
+
+            <!-- ==================== ⑧申込担当者情報 ==================== -->
+            <div class="section-header">⑧申込担当者情報</div>
+            <div class="form-section">
+                <div class="form-grid single-col">
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"><span class="required">※</span>営業担当者氏名</div>
+                        <div class="form-value">
+                            <input type="text" id="salesRepName" class="input-lg" placeholder="例）アドバンス 太郎">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"><span class="required">※</span>営業担当者メールアドレス</div>
+                        <div class="form-value">
+                            <input type="email" id="salesRepEmail" class="input-xl"
+                                placeholder="例）sample@advance-holdings.co.jp">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"><span class="required">※</span>お客様氏名</div>
+                        <div class="form-value">
+                            <input type="text" id="signerName" class="input-lg" placeholder="例）アドバンス 次郎">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label" style="width:200px;"><span class="required">※</span>お客様メールアドレス</div>
+                        <div class="form-value">
+                            <input type="email" id="signerEmail" class="input-xl"
+                                placeholder="例）sample@advance-holdings.co.jp">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ⑨添付書類 ==================== -->
+            <div class="section-header">⑨添付書類 <span class="required">※必須</span></div>
+            <div class="form-section">
+                <div class="pdf-upload-area" id="pdfDropZone" onclick="document.getElementById('pdfFileInput').click()">
+                    <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;"
+                        onchange="handlePdfSelect(event)">
+                    <div class="pdf-upload-icon">📄</div>
+                    <div class="pdf-upload-text">クリックまたはドラッグ＆ドロップでPDFを添付</div>
+                    <div class="pdf-upload-hint">※PDFファイルのみ対応</div>
+                </div>
+                <div id="pdfPreviewArea" style="display:none;">
+                    <div class="pdf-file-info" id="pdfFileInfo">
+                        <span class="pdf-file-name" id="pdfFileName"></span>
+                        <span class="pdf-file-size" id="pdfFileSize"></span>
+                        <button type="button" class="btn-remove-pdf" onclick="removePdf()" title="削除">✕</button>
+                    </div>
+                    <div class="pdf-preview-container">
+                        <iframe id="pdfPreviewFrame"
+                            style="width:100%; height:400px; border:1px solid var(--border-color); border-radius:var(--radius);"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">リセット</button>
+                <button type="button" class="btn btn-primary" onclick="goToConfirm()"
+                    style="padding: 8px 40px; font-size: 0.9rem;">確認画面へ</button>
+            </div>
+
+        </div><!-- /step-input -->
+
+        <!-- ===== 確認画面 ===== -->
+        <div id="step-confirm" style="display:none;">
+            <div class="section-header">入力内容の確認</div>
+            <div class="form-section">
+                <div id="confirmContent"></div>
+            </div>
+            <div class="form-footer">
+                <button type="button" class="btn btn-secondary" onclick="goBackToInput()"
+                    style="padding: 8px 40px; font-size: 0.9rem;">← 入力に戻る</button>
+                <button type="button" class="btn btn-primary" onclick="submitForm()"
+                    style="padding: 8px 40px; font-size: 0.9rem;">申込送信</button>
+            </div>
+        </div>
+
+        <!-- ===== 完了画面 ===== -->
+        <div id="step-complete" style="display:none;">
+            <div class="complete-card">
+                <div class="complete-icon">✓</div>
+                <h2 class="complete-title">申込が完了しました</h2>
+                <p class="complete-message">お申込みいただきありがとうございます。<br>内容を確認の上、担当よりご連絡いたします。</p>
+                <button type="button" class="btn btn-primary" onclick="location.reload()"
+                    style="padding: 10px 50px; font-size: 0.9rem; margin-top:20px;">新規申込</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
