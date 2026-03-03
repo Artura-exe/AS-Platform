@@ -10,10 +10,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <!-- FOUC（未ログイン時の画面チラつき）防止用の同期チェック -->
+    <style>
+        html {
+            visibility: hidden;
+            opacity: 0;
+        }
+    </style>
+    <!-- FOUC（未ログイン時の画面チラつき）防止の完全版 -->
     <script>
         if (sessionStorage.getItem('as_logged_in') !== 'true') {
-            window.location.href = 'login.html';
+            window.location.replace('login.html');
+        } else {
+            document.documentElement.style.visibility = 'visible';
+            document.documentElement.style.opacity = '1';
         }
     </script>
     <style>

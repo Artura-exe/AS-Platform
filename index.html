@@ -16,10 +16,19 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
     <script src="https://unpkg.com/vanilla-autokana/dist/autokana.js"></script>
+    <style>
+        html {
+            visibility: hidden;
+            opacity: 0;
+        }
+    </style>
     <script>
-        // 画面描画ブロックによるチラつき(FOUC)防止用の同期チェック
+        // 画面描画ブロックによるチラつき(FOUC)の完全防止
         if (sessionStorage.getItem('as_logged_in') !== 'true') {
-            window.location.href = 'login.html';
+            window.location.replace('login.html');
+        } else {
+            document.documentElement.style.visibility = 'visible';
+            document.documentElement.style.opacity = '1';
         }
     </script>
 </head>
