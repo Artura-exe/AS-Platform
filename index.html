@@ -16,6 +16,12 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
     <script src="https://unpkg.com/vanilla-autokana/dist/autokana.js"></script>
+    <script>
+        // 画面描画ブロックによるチラつき(FOUC)防止用の同期チェック
+        if (sessionStorage.getItem('as_logged_in') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
 </head>
 
 <body>
