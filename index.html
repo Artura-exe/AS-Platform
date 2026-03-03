@@ -444,7 +444,9 @@
             </div>
 
             <div class="form-footer">
-                <button type="button" class="btn btn-secondary" onclick="resetForm()">リセット</button>
+                <button type="button" class="btn btn-secondary" id="btnBackToList"
+                    onclick="window.location.href='admin.html'" style="display:none; background:#7f8c8d;">一覧に戻る</button>
+                <button type="button" class="btn btn-outline" onclick="resetForm()">リセット</button>
                 <button type="button" class="btn btn-primary" onclick="goToConfirm()"
                     style="padding: 8px 40px; font-size: 0.9rem;">確認画面へ</button>
             </div>
@@ -485,7 +487,7 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="js/app.js?v=2"></script>
+    <script src="js/app.js?v=3"></script>
 </body>
 
 </html>

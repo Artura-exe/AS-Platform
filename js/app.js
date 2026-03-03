@@ -122,6 +122,8 @@ async function loadExistingData(id, stage) {
     // ステージに応じた制御
     if (stage == '2') {
         togglePropertySection(true); // 2次申込時は物件金額を有効化
+        const btnBack = document.getElementById('btnBackToList');
+        if (btnBack) btnBack.style.display = 'inline-block';
     } else {
         togglePropertySection(false); // それ以外（編集等）は念のため無効化
     }
@@ -666,10 +668,9 @@ async function submitForm() {
         };
         stored.push(finalEntry);
     }
+    // API送信前にはまだ localStorage に保存しない
 
-    localStorage.setItem('as_applications', JSON.stringify(stored));
-
-    // C#側は string 型を期待するため、localStorageに残っていた古い数値型のIDを文字列に変換
+    // C#側は string 型を期待するため、数値型だった場合は文字列に変換
     if (finalEntry.id !== undefined && finalEntry.id !== null) {
         finalEntry.id = String(finalEntry.id);
     }
@@ -677,11 +678,25 @@ async function submitForm() {
     console.log('送信データ:', finalEntry);
 
     // APIへデータを送信 (SQL Serverへ保存)
-    const apiSuccess = await saveApplicationToApi(finalEntry);
-    if (!apiSuccess) {
-        // 保存失敗時はここで止める
+    const apiResult = await saveApplicationToApi(finalEntry);
+    if (!apiResult) {
+        // 保存失敗時はここで止める（ローカルにも保存しない）
         return;
     }
+
+    // バックエンドからIDが返ってきた場合は割り当てる
+    if (typeof apiResult === 'string' && apiResult !== 'true') {
+        finalEntry.id = apiResult;
+    } else if (!finalEntry.id) {
+        // 万が一何もない場合はローカル仮ID
+        finalEntry.id = Date.now().toString();
+    }
+
+    // API保存成功後、はじめて localStorage に保存・更新する
+    if (idx === -1) {
+        stored.push(finalEntry);
+    }
+    localStorage.setItem('as_applications', JSON.stringify(stored));
 
     // メール本文を組み立て
     const emailBody = buildEmailBody(formData);
@@ -740,7 +755,7 @@ async function saveApplicationToApi(data) {
         const result = await response.json();
         if (result.success) {
             console.log('DB保存成功:', result.message);
-            return true;
+            return result.applicationId || true;
         } else {
             console.error('DB保存失敗:', result.message);
             alert('データベースへの保存に失敗しました:\n' + result.message);
