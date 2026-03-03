@@ -667,73 +667,71 @@ async function submitForm() {
             submittedBy: sessionStorage.getItem('as_login_user'),
             ...formData,
         };
-    };
+    }
     // API送信前にはまだ localStorage に保存しない (pushも後で行う)
-}
-// API送信前にはまだ localStorage に保存しない
 
-// C#側は string 型を期待するため、数値型だった場合は文字列に変換
-if (finalEntry.id !== undefined && finalEntry.id !== null) {
-    finalEntry.id = String(finalEntry.id);
-}
+    // C#側は string 型を期待するため、数値型だった場合は文字列に変換
+    if (finalEntry.id !== undefined && finalEntry.id !== null) {
+        finalEntry.id = String(finalEntry.id);
+    }
 
-console.log('送信データ:', finalEntry);
+    console.log('送信データ:', finalEntry);
 
-// APIへデータを送信 (SQL Serverへ保存)
-const apiResult = await saveApplicationToApi(finalEntry);
-if (!apiResult) {
-    // 保存失敗時はここで止める（ローカルにも保存しない）
-    return;
-}
+    // APIへデータを送信 (SQL Serverへ保存)
+    const apiResult = await saveApplicationToApi(finalEntry);
+    if (!apiResult) {
+        // 保存失敗時はここで止める（ローカルにも保存しない）
+        return;
+    }
 
-// バックエンドからIDが返ってきた場合は割り当てる
-if (typeof apiResult === 'string' && apiResult !== 'true') {
-    finalEntry.id = apiResult;
-} else if (!finalEntry.id) {
-    // 万が一何もない場合はローカル仮ID
-    finalEntry.id = Date.now().toString();
-}
+    // バックエンドからIDが返ってきた場合は割り当てる
+    if (typeof apiResult === 'string' && apiResult !== 'true') {
+        finalEntry.id = apiResult;
+    } else if (!finalEntry.id) {
+        // 万が一何もない場合はローカル仮ID
+        finalEntry.id = Date.now().toString();
+    }
 
-// API保存成功後、はじめて localStorage に保存・更新する
-if (idx === -1) {
-    stored.push(finalEntry);
-}
-localStorage.setItem('as_applications', JSON.stringify(stored));
+    // API保存成功後、はじめて localStorage に保存・更新する
+    if (idx === -1) {
+        stored.push(finalEntry);
+    }
+    localStorage.setItem('as_applications', JSON.stringify(stored));
 
-// メール本文を組み立て
-const emailBody = buildEmailBody(formData);
-const emailSubject = '【ASホームページ】お申込みありがとうございます。';
+    // メール本文を組み立て
+    const emailBody = buildEmailBody(formData);
+    const emailSubject = '【ASホームページ】お申込みありがとうございます。';
 
-// 添付ファイルがある場合は Base64 変換して送信
-if (selectedPdfFile) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const base64Data = e.target.result.split(',')[1];
-        sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail, base64Data, selectedPdfFile.name);
-    };
-    reader.readAsDataURL(selectedPdfFile);
-} else {
-    sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail);
-}
+    // 添付ファイルがある場合は Base64 変換して送信
+    if (selectedPdfFile) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const base64Data = e.target.result.split(',')[1];
+            sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail, base64Data, selectedPdfFile.name);
+        };
+        reader.readAsDataURL(selectedPdfFile);
+    } else {
+        sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail);
+    }
 
-showToast('申込データを送信しました', 'success');
+    showToast('申込データを送信しました', 'success');
 
-// 完了画面へ
-const titleEl = document.getElementById('complete-title');
-const msgEl = document.getElementById('complete-message');
-if (stage == '2') {
-    titleEl.textContent = '本申込が完了しました';
-    msgEl.innerHTML = '本申込みのお手続きがすべて完了いたしました。<br>これより本登録作業を進めさせていただきます。';
-} else {
-    titleEl.textContent = '1次申込が完了しました';
-    msgEl.innerHTML = '1次申込み（新規登録）を受け付けました。<br>引き続き、物件金額等の詳細情報の入力（本申込）をお願いいたします。';
-}
+    // 完了画面へ
+    const titleEl = document.getElementById('complete-title');
+    const msgEl = document.getElementById('complete-message');
+    if (stage == '2') {
+        titleEl.textContent = '本申込が完了しました';
+        msgEl.innerHTML = '本申込みのお手続きがすべて完了いたしました。<br>これより本登録作業を進めさせていただきます。';
+    } else {
+        titleEl.textContent = '1次申込が完了しました';
+        msgEl.innerHTML = '1次申込み（新規登録）を受け付けました。<br>引き続き、物件金額等の詳細情報の入力（本申込）をお願いいたします。';
+    }
 
-document.getElementById('step-input').style.display = 'none';
-document.getElementById('step-confirm').style.display = 'none';
-document.getElementById('step-complete').style.display = '';
-setStep(3);
-window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('step-input').style.display = 'none';
+    document.getElementById('step-confirm').style.display = 'none';
+    document.getElementById('step-complete').style.display = '';
+    setStep(3);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
