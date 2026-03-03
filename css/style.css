@@ -145,9 +145,9 @@ body {
 
 .form-label {
   flex-shrink: 0;
-  width: 100px;
-  padding: 4px 8px;
-  font-size: 0.8rem;
+  width: 120px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
   color: var(--text-label);
   font-weight: 500;
   background: var(--bg-field);
@@ -187,10 +187,10 @@ input[type="date"],
 input[type="number"],
 select,
 textarea {
-  padding: 4px 8px;
+  padding: 8px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-family: var(--font-family);
   background: var(--bg-white);
   transition: var(--transition);
@@ -207,37 +207,52 @@ textarea:focus {
 input[type="text"],
 input[type="email"],
 input[type="tel"] {
-  height: 28px;
+  height: 36px;
 }
 
 input[type="date"] {
-  height: 28px;
+  height: 36px;
+}
+
+/* Flatpickr integration */
+.flatpickr-input {
+  background-color: var(--bg-white) !important;
+}
+
+.flatpickr-calendar.material_red {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--primary-red);
+}
+
+.flatpickr-day.selected {
+  background: var(--primary-red) !important;
+  border-color: var(--primary-red) !important;
 }
 
 select {
-  height: 28px;
+  height: 36px;
   cursor: pointer;
 }
 
 /* サイズバリエーション */
 .input-xs {
-  width: 60px;
+  width: 80px;
 }
 
 .input-sm {
-  width: 90px;
+  width: 120px;
 }
 
 .input-md {
-  width: 140px;
+  width: 180px;
 }
 
 .input-lg {
-  width: 200px;
+  width: 260px;
 }
 
 .input-xl {
-  width: 280px;
+  width: 380px;
 }
 
 .input-full {

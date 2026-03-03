@@ -337,10 +337,6 @@
                 <div class="stat-label">新規</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="statReview">0</div>
-                <div class="stat-label">確認中</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-value" id="statDone">0</div>
                 <div class="stat-label">完了</div>
             </div>
@@ -354,7 +350,6 @@
                     <option value="1次申込完了">1次申込完了</option>
                     <option value="申込完了">申込完了</option>
                     <option value="新規">新規</option>
-                    <option value="確認中">確認中</option>
                     <option value="完了">完了</option>
                 </select>
             </div>
@@ -395,12 +390,11 @@
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
-            <div class="modal-footer">
+            <div class="modal-footer" id="modalFooter">
                 <select id="statusSelect"
                     style="padding:6px 12px; border:1px solid var(--border-color); border-radius:var(--radius); font-size:0.8rem; margin-right:8px;">
                     <option value="1次申込完了">1次申込完了</option>
                     <option value="申込完了">申込完了</option>
-                    <option value="確認中">確認中</option>
                     <option value="完了">完了</option>
                 </select>
                 <button class="btn btn-primary" onclick="updateStatus()"
@@ -449,7 +443,6 @@
 
             document.getElementById('statTotal').textContent = myApps.length;
             document.getElementById('statNew').textContent = myApps.filter(a => a.status === '1次申込完了').length;
-            document.getElementById('statReview').textContent = myApps.filter(a => a.status === '申込完了').length;
             document.getElementById('statDone').textContent = myApps.filter(a => a.status === '完了').length;
 
             const badge = document.getElementById('userRoleBadge');
@@ -492,8 +485,7 @@
             tbody.innerHTML = filtered.map((app, i) => {
                 const statusClass =
                     app.status === '1次申込完了' ? 'status-1st' :
-                        app.status === '申込完了' ? 'status-new' :
-                            app.status === '確認中' ? 'status-review' : 'status-done';
+                        app.status === '申込完了' ? 'status-new' : 'status-done';
 
                 let actionHtml = `<button class="btn-detail" onclick="openDetail(${app.id})">詳細</button>`;
                 if (app.status === '1次申込完了') {
@@ -526,6 +518,10 @@
 
             document.getElementById('modalTitle').textContent = `申込詳細 - ${app.companyName || ''}`;
             document.getElementById('statusSelect').value = app.status;
+
+            // 管理者以外はステータス更新エリアを非表示
+            const role = sessionStorage.getItem('as_role');
+            document.getElementById('modalFooter').style.display = (role === 'admin') ? '' : 'none';
 
             const h = (label, value) => `<tr><th>${label}</th><td>${value || '―'}</td></tr>`;
             let html = '';

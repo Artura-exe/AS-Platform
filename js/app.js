@@ -6,9 +6,16 @@
 // 設定
 // ==========================
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:5050/api',
-    USE_MOCK: true,
+    // API_BASE_URL: 'http://localhost:5050/api', // ローカルでのみ動かす場合
+    API_BASE_URL: 'http://192.168.10.143:5050/api', // 別端末からもアクセスさせる場合
+    USE_MOCK: false,
 };
+
+// IME変換中フラグ
+let isComposing = false;
+
+// フリガナ自動入力
+let autokanaCompany, autokanaRep, autokanaContact;
 
 // ==========================
 // 初期化
@@ -21,6 +28,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // AutoKana初期化
+    if (window.AutoKana) {
+        autokanaCompany = AutoKana.bind('#companyName', '#companyKana', { katakana: true });
+        autokanaRep = AutoKana.bind('#representativeName', '#representativeKana', { katakana: true });
+        autokanaContact = AutoKana.bind('#contactName', '#contactKana', { katakana: true });
+    }
+
+    // Flatpickr初期化（日本語設定）
+    flatpickr.localize(flatpickr.l10ns.ja);
+    const fpConfig = {
+        locale: "ja",
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        altInput: true,
+        altFormat: "Y年m月d日",
+    };
+
+    // 全ての日付入力フィールドに適用
+    const dateInputs = document.querySelectorAll('#applicationDate, #registrationDate');
+    dateInputs.forEach(el => {
+        const fp = flatpickr(el, {
+            ...fpConfig,
+            onChange: function (selectedDates, dateStr, instance) {
+                // 必要に応じて後続処理
+            }
+        });
+
+        // 8桁数字入力をサポートするイベント
+        el.addEventListener('blur', function (e) {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            if (val.length === 8) {
+                const y = val.substring(0, 4);
+                const m = val.substring(4, 6);
+                const d = val.substring(6, 8);
+                const dateStr = `${y}-${m}-${d}`;
+                if (!isNaN(Date.parse(dateStr))) {
+                    fp.setDate(dateStr);
+                }
+            }
+        });
+    });
+
     // URLパラメータ取得
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -32,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (id) {
         // 既存データの読み込みと復元
         await loadExistingData(id, stage);
-        const labelEl = document.querySelector('.section-header:nth-of-type(10) .required');
+        const labelEl = document.querySelector('.section-header:nth-of-type(9) .required');
         if (labelEl) labelEl.textContent = (stage == '2') ? '※必須' : '(任意)';
     } else {
         // 新規申込 (1次申込)
@@ -42,9 +91,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 物件金額セクションを無効化 (1次申込時は入力不可)
         togglePropertySection(false);
-        const labelEl = document.querySelector('.section-header:nth-of-type(10) .required');
+        const labelEl = document.querySelector('.section-header:nth-of-type(9) .required');
         if (labelEl) labelEl.textContent = '(任意)';
     }
+
+    // IME変換の監視
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('compositionstart', () => { isComposing = true; });
+        input.addEventListener('compositionend', () => {
+            isComposing = false;
+            // 変換確定時に一度バリデーションを走らせる
+            if (input.oninput) input.dispatchEvent(new Event('input'));
+        });
+    });
 });
 
 /**
@@ -130,11 +189,14 @@ function addStoreEntry() {
     const entry = document.createElement('div');
     entry.className = 'store-entry';
     entry.id = `store-${storeCount}`;
+    const storeNameId = `storeName-${storeCount}`;
+    const storeKanaId = `storeKana-${storeCount}`;
+
     entry.innerHTML = `
     <button type="button" class="btn-remove-store" onclick="removeStoreEntry('store-${storeCount}')" title="削除">✕</button>
     <div class="store-row">
-      <input type="text" placeholder="店舗名称" class="input-lg">
-      <input type="text" placeholder="店舗名カナ" oninput="validateKatakana(this)">
+      <input type="text" id="${storeNameId}" placeholder="店舗名称" class="input-lg">
+      <input type="text" id="${storeKanaId}" placeholder="店舗名カナ" oninput="validateKatakana(this)">
       <input type="text" placeholder="電話番号" class="input-md" inputmode="numeric" oninput="validateNumeric(this)">
     </div>
     <div class="store-row">
@@ -148,6 +210,12 @@ function addStoreEntry() {
   `;
 
     container.appendChild(entry);
+
+    // 店舗名にもAutoKanaを適用
+    if (window.AutoKana) {
+        AutoKana.bind(`#${storeNameId}`, `#${storeKanaId}`, { katakana: true });
+    }
+
     container.scrollTop = container.scrollHeight;
 }
 
@@ -557,8 +625,8 @@ function buildConfirmHtml() {
 // ==========================
 // フォーム送信
 // ==========================
-function submitForm() {
-    const formData = collectFormData();
+async function submitForm() {
+    const formData = await collectFormData();
     const params = new URLSearchParams(window.location.search);
     const existingId = params.get('id');
     const stage = params.get('stage');
@@ -587,10 +655,11 @@ function submitForm() {
     } else {
         // 新規
         finalEntry = {
-            id: Date.now(),
+            id: "", // バックエンドで採番させるため空文字を指定
             status: status,
             pdfFileName: selectedPdfFile ? selectedPdfFile.name : '',
             pdfFileSize: selectedPdfFile ? selectedPdfFile.size : 0,
+            pdfBase64: formData.pdfBase64 || '', // Base64データを格納
             submittedAt: new Date().toISOString(),
             submittedBy: sessionStorage.getItem('as_login_user'),
             ...formData,
@@ -600,7 +669,19 @@ function submitForm() {
 
     localStorage.setItem('as_applications', JSON.stringify(stored));
 
+    // C#側は string 型を期待するため、localStorageに残っていた古い数値型のIDを文字列に変換
+    if (finalEntry.id !== undefined && finalEntry.id !== null) {
+        finalEntry.id = String(finalEntry.id);
+    }
+
     console.log('送信データ:', finalEntry);
+
+    // APIへデータを送信 (SQL Serverへ保存)
+    const apiSuccess = await saveApplicationToApi(finalEntry);
+    if (!apiSuccess) {
+        // 保存失敗時はここで止める
+        return;
+    }
 
     // メール本文を組み立て
     const emailBody = buildEmailBody(formData);
@@ -621,12 +702,57 @@ function submitForm() {
     showToast('申込データを送信しました', 'success');
 
     // 完了画面へ
+    const titleEl = document.getElementById('complete-title');
+    const msgEl = document.getElementById('complete-message');
+    if (stage == '2') {
+        titleEl.textContent = '本申込が完了しました';
+        msgEl.innerHTML = '本申込みのお手続きがすべて完了いたしました。<br>これより本登録作業を進めさせていただきます。';
+    } else {
+        titleEl.textContent = '1次申込が完了しました';
+        msgEl.innerHTML = '1次申込み（新規登録）を受け付けました。<br>引き続き、物件金額等の詳細情報の入力（本申込）をお願いいたします。';
+    }
+
     document.getElementById('step-input').style.display = 'none';
     document.getElementById('step-confirm').style.display = 'none';
     document.getElementById('step-complete').style.display = '';
     setStep(3);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+/**
+ * データをバックエンドAPIに送信して保存
+ */
+async function saveApplicationToApi(data) {
+    try {
+        const response = await fetch(CONFIG.API_BASE_URL + '/Application', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error('DB保存失敗(HTTPエラー):', response.status, errText);
+            alert('サーバーとの通信に失敗しました（' + response.status + 'エラー）。\n' + errText);
+            return false;
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            console.log('DB保存成功:', result.message);
+            return true;
+        } else {
+            console.error('DB保存失敗:', result.message);
+            alert('データベースへの保存に失敗しました:\n' + result.message);
+            return false;
+        }
+    } catch (err) {
+        console.error('API通信エラー:', err);
+        alert('サーバーに接続できませんでした。バックエンドが起動しているか確認してください。');
+        return false;
+    }
+}
+
 
 /**
  * メール送信実行
@@ -798,6 +924,7 @@ function validateNumeric(input) {
  * @param {HTMLInputElement} input 
  */
 function validateKatakana(input) {
+    if (isComposing) return; // IME変換中はバリデーションをスキップ
     // 全角カタカナ: \u30A1-\u30F6
     // 半角カタカナ: \uFF66-\uFF9F
     // 長音記号（全角・半角）: \u30FC, \uFF70
@@ -834,8 +961,8 @@ function validateForm() {
 // ==========================
 // フォームデータ収集
 // ==========================
-function collectFormData() {
-    return {
+async function collectFormData() {
+    const data = {
         // ①お申込み情報
         applicationDate: val('applicationDate'),
         applicationType: val('applicationType'),
@@ -908,7 +1035,35 @@ function collectFormData() {
         salesRepEmail: val('salesRepEmail'),
         signerName: val('signerName'),
         signerEmail: val('signerEmail'),
+
+        // 添付ファイル関連
+        pdfFileName: selectedPdfFile ? selectedPdfFile.name : '',
+        pdfFileSize: selectedPdfFile ? selectedPdfFile.size : 0,
+        pdfBase64: '',
     };
+
+    // PDFが選択されていればBase64に変換
+    if (selectedPdfFile) {
+        try {
+            data.pdfBase64 = await readFileAsBase64(selectedPdfFile);
+        } catch (err) {
+            console.error('PDF読み込みエラー:', err);
+        }
+    }
+
+    return data;
+}
+
+/**
+ * ファイルをBase64形式で読み込む
+ */
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+    });
 }
 
 /**

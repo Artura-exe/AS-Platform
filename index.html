@@ -1,4 +1,3 @@
-# AS-Platform
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -11,6 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_red.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+    <script src="https://unpkg.com/vanilla-autokana/dist/autokana.js"></script>
 </head>
 
 <body>
@@ -46,7 +51,7 @@
                     <div class="form-row">
                         <div class="form-label"><span class="required">※</span>お申込日</div>
                         <div class="form-value">
-                            <input type="date" id="applicationDate" class="input-md">
+                            <input type="text" id="applicationDate" class="input-md" placeholder="年-月-日" readonly>
                         </div>
                     </div>
                     <div class="form-row">
@@ -80,9 +85,9 @@
                     <div class="form-row">
                         <div class="form-label">代表者名</div>
                         <div class="form-value">
-                            <input type="text" id="representativeName" class="input-sm" placeholder="姓">
+                            <input type="text" id="representativeName" class="input-sm" placeholder="代表者名">
                             <span class="sub-label">フリガナ</span>
-                            <input type="text" id="representativeKana" class="input-sm" placeholder="セイ"
+                            <input type="text" id="representativeKana" class="input-sm" placeholder="フリガナ"
                                 oninput="validateKatakana(this)">
                         </div>
                     </div>
@@ -401,7 +406,7 @@
             </div>
 
             <!-- ==================== ⑨添付書類 ==================== -->
-            <div class="section-header">⑨添付書類 <span class="required">※必須</span></div>
+            <div class="section-header">⑨添付書類 <span class="required"></span></div>
             <div class="form-section">
                 <div class="pdf-upload-area" id="pdfDropZone" onclick="document.getElementById('pdfFileInput').click()">
                     <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;"
@@ -449,10 +454,14 @@
         <div id="step-complete" style="display:none;">
             <div class="complete-card">
                 <div class="complete-icon">✓</div>
-                <h2 class="complete-title">申込が完了しました</h2>
-                <p class="complete-message">お申込みいただきありがとうございます。<br>内容を確認の上、担当よりご連絡いたします。</p>
-                <button type="button" class="btn btn-primary" onclick="location.reload()"
-                    style="padding: 10px 50px; font-size: 0.9rem; margin-top:20px;">新規申込</button>
+                <h2 class="complete-title" id="complete-title">申込が完了しました</h2>
+                <p class="complete-message" id="complete-message">お申込みいただきありがとうございます。<br>内容を確認の上、担当よりご連絡いたします。</p>
+                <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                    <button type="button" class="btn btn-primary" onclick="location.reload()"
+                        style="padding: 10px 30px; font-size: 0.9rem;">新規申込</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='admin.html'"
+                        style="padding: 10px 30px; font-size: 0.9rem;">申込一覧に戻る</button>
+                </div>
             </div>
         </div>
 
@@ -461,7 +470,7 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=2"></script>
 </body>
 
 </html>
