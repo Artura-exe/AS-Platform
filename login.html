@@ -219,7 +219,7 @@
             if (e.key === 'Enter') document.getElementById('password').focus();
         });
 
-        function handleLogin() {
+        async function handleLogin() {
             const userId = document.getElementById('userId').value.trim();
             const password = document.getElementById('password').value.trim();
             const errorEl = document.getElementById('loginError');
@@ -231,24 +231,41 @@
                 return;
             }
 
-            // 認証チェック
-            const accounts = {
-                admin: { password: 'admin', role: 'admin', redirect: 'admin.html' },
-                user: { password: 'user', role: 'user', redirect: 'admin.html' },
-            };
+            // ボタン連打防止
+            const btn = document.querySelector('.login-btn');
+            btn.disabled = true;
+            btn.textContent = '認証中...';
 
-            const account = accounts[userId];
-            if (!account || account.password !== password) {
+            try {
+                // Azure APIへ認証リクエスト
+                const res = await fetch('https://as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net/api/Auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        sessionStorage.setItem('as_login_user', data.userId);
+                        sessionStorage.setItem('as_logged_in', 'true');
+                        sessionStorage.setItem('as_role', data.role);
+                        window.location.href = data.redirect || 'admin.html';
+                        return;
+                    }
+                }
+
+                // 認証失敗
                 errorEl.textContent = 'ユーザーIDまたはパスワードが正しくありません';
                 errorEl.classList.add('show');
-                return;
+            } catch (err) {
+                console.error('Login error:', err);
+                errorEl.textContent = 'サーバーとの通信に失敗しました';
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'ログイン';
             }
-
-            sessionStorage.setItem('as_login_user', userId);
-            sessionStorage.setItem('as_logged_in', 'true');
-            sessionStorage.setItem('as_role', account.role);
-
-            window.location.href = account.redirect;
         }
     </script>
 
