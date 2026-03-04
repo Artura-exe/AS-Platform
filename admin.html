@@ -429,19 +429,46 @@
             window.location.href = 'login.html';
         }
 
-        // LocalStorageからデータ読み込み・保存
-        function loadApplications() {
+        // API ベースURL (app.jsと共通化するか直接定義)
+        const API_BASE_URL = 'https://as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net/api';
+
+        //APIからデータ取得
+        async function loadApplications() {
+            try {
+                const res = await fetch(API_BASE_URL + '/Application');
+                if (res.ok) {
+                    const data = await res.json();
+                    // 取得したデータをローカルストレージにもキャッシュとして保持しておく（詳細表示等で利用）
+                    localStorage.setItem('as_applications', JSON.stringify(data));
+                    return data;
+                }
+            } catch (e) {
+                console.error('API取得エラー:', e);
+            }
+            // エラー時はローカルストレージのフォールバック
             return JSON.parse(localStorage.getItem('as_applications') || '[]');
         }
-        function saveApplications(data) {
-            localStorage.setItem('as_applications', JSON.stringify(data));
+
+        async function saveApplication(appData) {
+            try {
+                const res = await fetch(API_BASE_URL + '/Application', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appData)
+                });
+                return res.ok;
+            } catch (e) {
+                console.error('API保存エラー:', e);
+                return false;
+            }
         }
 
         let currentAppId = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderTable();
-            updateStats();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const apps = await loadApplications();
+            renderTable(apps);
+            updateStats(apps);
         });
 
         function handleLogout() {
@@ -449,8 +476,7 @@
             window.location.href = 'login.html';
         }
 
-        function updateStats() {
-            const apps = loadApplications();
+        function updateStats(apps) {
             const role = sessionStorage.getItem('as_role');
             const currentUser = sessionStorage.getItem('as_login_user');
 
@@ -470,8 +496,7 @@
             }
         }
 
-        function renderTable() {
-            const apps = loadApplications();
+        function renderTable(apps) {
             const role = sessionStorage.getItem('as_role');
             const currentUser = sessionStorage.getItem('as_login_user');
             const search = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -523,10 +548,15 @@
             window.location.href = `index.html?id=${id}&stage=2`;
         }
 
-        function filterTable() { renderTable(); }
+        async function filterTable() {
+            // ローカルにあるキャッシュ（LocalStorage）を使うか、再度APIを呼ぶか
+            // 検索時はキャッシュを使うことで高速化
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
+            renderTable(apps);
+        }
 
         function openDetail(id) {
-            const apps = loadApplications();
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
             const app = apps.find(a => String(a.id) === String(id));
             if (!app) return;
             currentAppId = id;
@@ -676,18 +706,27 @@
             currentAppId = null;
         }
 
-        function updateStatus() {
+        async function updateStatus() {
             if (!currentAppId) return;
             const newStatus = document.getElementById('statusSelect').value;
-            const apps = loadApplications();
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
             const app = apps.find(a => String(a.id) === String(currentAppId));
+
             if (app) {
                 app.status = newStatus;
-                saveApplications(apps);
-                renderTable();
-                updateStats();
-                showToast(`ステータスを「${newStatus}」に更新しました`, 'success');
-                closeModal();
+
+                // APIに更新を投げる
+                const success = await saveApplication(app);
+                if (success) {
+                    // API保存成功後、再度全一覧を取得して画面をリフレッシュ
+                    const refreshedApps = await loadApplications();
+                    renderTable(refreshedApps);
+                    updateStats(refreshedApps);
+                    showToast(`ステータスを「${newStatus}」に更新しました`, 'success');
+                    closeModal();
+                } else {
+                    showToast('ステータス更新に失敗しました。', 'error');
+                }
             }
         }
 
