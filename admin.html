@@ -348,241 +348,237 @@
                         onclick="logout()">ログアウト</button>
                 </div>
             </div>
+        </div>
 
-            <!-- 統計カード -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotal">0</div>
-                    <div class="stat-label">総申込数</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statNew">0</div>
-                    <div class="stat-label">新規</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statDone">0</div>
-                    <div class="stat-label">完了</div>
-                </div>
+        <!-- 統計カード -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">総申込数</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statNew">0</div>
+                <div class="stat-label">新規</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statDone">0</div>
+                <div class="stat-label">完了</div>
+            </div>
+        </div>
 
-            <div class="admin-toolbar">
-                <div style="display:flex; gap:12px; align-items:center;">
-                    <input type="text" id="searchInput" placeholder="🔍 法人名・担当者名で検索..." oninput="filterTable()">
-                    <select id="statusFilter" onchange="filterTable()">
-                        <option value="">すべてのステータス</option>
-                        <option value="1次申込完了">1次申込完了</option>
-                        <option value="申込完了">申込完了</option>
-                        <option value="新規">新規</option>
-                        <option value="完了">完了</option>
+        <div class="admin-toolbar">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <input type="text" id="searchInput" placeholder="🔍 法人名・担当者名で検索..." oninput="filterTable()">
+                <select id="statusFilter" onchange="filterTable()">
+                    <option value="">すべてのステータス</option>
+                    <option value="1次申込完了">1次申込完了</option>
+                    <option value="申込完了">申込完了</option>
+                    <option value="新規">新規</option>
+                    <option value="完了">完了</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='index.html'"
+                style="padding:8px 20px; font-size:0.8rem;">＋ 新規申込</button>
+        </div>
+
+        <!-- テーブル -->
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>申込日</th>
+                        <th>法人名/屋号</th>
+                        <th>担当者名</th>
+                        <th>電話番号</th>
+                        <th>ステータス</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="applicationTableBody">
+                </tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-text">申込データがありません</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 詳細モーダル -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">申込詳細</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter">
+                <select id="statusSelect"
+                    style="padding:6px 12px; border:1px solid var(--border-color); border-radius:var(--radius); font-size:0.8rem; margin-right:8px;">
+                    <option value="1次申込完了">1次申込完了</option>
+                    <option value="申込完了">申込完了</option>
+                    <option value="完了">完了</option>
+                </select>
+                <button class="btn btn-primary" onclick="updateStatus()"
+                    style="padding:6px 20px; font-size:0.8rem;">ステータス更新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- アカウント追加モーダル -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>アカウント追加</h2>
+                <button class="modal-close" onclick="closeAccountModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 12px;">
+                    <label style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">ユーザーID</label>
+                    <input type="text" id="newUserId"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" placeholder="ログインID">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">パスワード</label>
+                    <input type="password" id="newUserPassword"
+                        style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;" placeholder="パスワード">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">権限
+                        (ロール)</label>
+                    <select id="newUserRole" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        <option value="user">一般ユーザー (user)</option>
+                        <option value="admin">管理者 (admin)</option>
                     </select>
                 </div>
-                <button class="btn btn-primary" onclick="window.location.href='index.html'"
-                    style="padding:8px 20px; font-size:0.8rem;">＋ 新規申込</button>
             </div>
-
-            <!-- テーブル -->
-            <div class="admin-table-wrap">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>申込日</th>
-                            <th>法人名/屋号</th>
-                            <th>担当者名</th>
-                            <th>電話番号</th>
-                            <th>ステータス</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applicationTableBody">
-                    </tbody>
-                </table>
-                <div class="empty-state" id="emptyState" style="display:none;">
-                    <div class="empty-state-icon">📋</div>
-                    <div class="empty-state-text">申込データがありません</div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- 詳細モーダル -->
-        <div class="modal-overlay" id="detailModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 id="modalTitle">申込詳細</h2>
-                    <button class="modal-close" onclick="closeModal()">✕</button>
-                </div>
-                <div class="modal-body" id="modalBody"></div>
-                <div class="modal-footer" id="modalFooter">
-                    <select id="statusSelect"
-                        style="padding:6px 12px; border:1px solid var(--border-color); border-radius:var(--radius); font-size:0.8rem; margin-right:8px;">
-                        <option value="1次申込完了">1次申込完了</option>
-                        <option value="申込完了">申込完了</option>
-                        <option value="完了">完了</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="updateStatus()"
-                        style="padding:6px 20px; font-size:0.8rem;">ステータス更新</button>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAccountModal()"
+                    style="padding:6px 16px; margin-right:8px;">キャンセル</button>
+                <button class="btn btn-primary" onclick="submitAccount()" id="btnSubmitAccount"
+                    style="padding:6px 20px;">登録する</button>
             </div>
         </div>
+    </div>
 
-        <!-- Toast -->
-        <div class="toast" id="toast"></div>
+    <script>
+        // ログインチェック
+        const loggedIn = sessionStorage.getItem('as_logged_in') === 'true';
+        const role = sessionStorage.getItem('as_role');
+        const currentUser = sessionStorage.getItem('as_login_user');
+        if (!loggedIn || !role) {
+            window.location.href = 'login.html';
+        }
 
-        <!-- アカウント追加モーダル -->
-        <div class="modal-overlay" id="accountModal">
-            <div class="modal-content" style="max-width: 400px;">
-                <div class="modal-header">
-                    <h2>アカウント追加</h2>
-                    <button class="modal-close" onclick="closeAccountModal()">✕</button>
-                </div>
-                <div class="modal-body">
-                    <div style="margin-bottom: 12px;">
-                        <label
-                            style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">ユーザーID</label>
-                        <input type="text" id="newUserId"
-                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"
-                            placeholder="ログインID">
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label
-                            style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">パスワード</label>
-                        <input type="password" id="newUserPassword"
-                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;"
-                            placeholder="パスワード">
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display:block; font-size:0.8rem; font-weight:bold; margin-bottom:4px;">権限
-                            (ロール)</label>
-                        <select id="newUserRole"
-                            style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
-                            <option value="user">一般ユーザー (user)</option>
-                            <option value="admin">管理者 (admin)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline" onclick="closeAccountModal()"
-                        style="padding:6px 16px; margin-right:8px;">キャンセル</button>
-                    <button class="btn btn-primary" onclick="submitAccount()" id="btnSubmitAccount"
-                        style="padding:6px 20px;">登録する</button>
-                </div>
-            </div>
-        </div>
+        // 管理者ならアカウント追加ボタンを表示
+        if (role === 'admin') {
+            document.getElementById('btnAddAccount').style.display = 'inline-block';
+        }
+        document.getElementById('loginUserName').textContent = `ユーザー: ${currentUser}`;
 
-        <script>
-            // ログインチェック
-            const loggedIn = sessionStorage.getItem('as_logged_in') === 'true';
+
+        // API ベースURL (app.jsと共通化するか直接定義)
+        const API_BASE_URL = 'https://as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net/api';
+
+        //APIからデータ取得
+        async function loadApplications() {
+            try {
+                const res = await fetch(API_BASE_URL + '/Application');
+                if (res.ok) {
+                    const data = await res.json();
+                    // 取得したデータをローカルストレージにもキャッシュとして保持しておく（詳細表示等で利用）
+                    localStorage.setItem('as_applications', JSON.stringify(data));
+                    return data;
+                }
+            } catch (e) {
+                console.error('API取得エラー:', e);
+            }
+            // エラー時はローカルストレージのフォールバック
+            return JSON.parse(localStorage.getItem('as_applications') || '[]');
+        }
+
+        async function saveApplication(appData) {
+            try {
+                const res = await fetch(API_BASE_URL + '/Application', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appData)
+                });
+                return res.ok;
+            } catch (e) {
+                console.error('API保存エラー:', e);
+                return false;
+            }
+        }
+
+        let currentAppId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const apps = await loadApplications();
+            renderTable(apps);
+            updateStats(apps);
+        });
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // 統計更新
+        function updateStats(apps) {
             const role = sessionStorage.getItem('as_role');
             const currentUser = sessionStorage.getItem('as_login_user');
-            if (!loggedIn || !role) {
-                window.location.href = 'login.html';
-            }
+            // user権限の場合は自分が登録したものだけを対象とする
+            const myApps = role === 'admin' ? apps : apps.filter(a => a.submittedBy === currentUser);
 
-            // 管理者ならアカウント追加ボタンを表示
-            if (role === 'admin') {
-                document.getElementById('btnAddAccount').style.display = 'inline-block';
-            }
-            document.getElementById('loginUserName').textContent = `ユーザー: ${currentUser}`;
+            document.getElementById('statTotal').textContent = myApps.length;
+            document.getElementById('statNew').textContent = myApps.filter(a => a.status === '新規').length;
+            document.getElementById('statDone').textContent = myApps.filter(a => a.status === '完了').length;
+        }
 
+        // テーブル描画
+        function renderTable(apps) {
+            const role = sessionStorage.getItem('as_role');
+            const currentUser = sessionStorage.getItem('as_login_user');
+            const search = document.getElementById('searchInput').value.trim().toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const tbody = document.getElementById('applicationTableBody');
+            const emptyState = document.getElementById('emptyState');
 
-            // API ベースURL (app.jsと共通化するか直接定義)
-            const API_BASE_URL = 'https://as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net/api';
+            let filtered = apps.filter(app => {
+                // Role filter
+                if (role !== 'admin' && app.submittedBy !== currentUser) return false;
 
-            //APIからデータ取得
-            async function loadApplications() {
-                try {
-                    const res = await fetch(API_BASE_URL + '/Application');
-                    if (res.ok) {
-                        const data = await res.json();
-                        // 取得したデータをローカルストレージにもキャッシュとして保持しておく（詳細表示等で利用）
-                        localStorage.setItem('as_applications', JSON.stringify(data));
-                        return data;
-                    }
-                } catch (e) {
-                    console.error('API取得エラー:', e);
-                }
-                // エラー時はローカルストレージのフォールバック
-                return JSON.parse(localStorage.getItem('as_applications') || '[]');
-            }
-
-            async function saveApplication(appData) {
-                try {
-                    const res = await fetch(API_BASE_URL + '/Application', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(appData)
-                    });
-                    return res.ok;
-                } catch (e) {
-                    console.error('API保存エラー:', e);
-                    return false;
-                }
-            }
-
-            let currentAppId = null;
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                const apps = await loadApplications();
-                renderTable(apps);
-                updateStats(apps);
+                const cName = (app.companyName || '').toLowerCase();
+                const ctName = (app.contactName || '').toLowerCase();
+                const matchSearch = !search || cName.includes(search) || ctName.includes(search);
+                const matchStatus = !statusFilter || app.status === statusFilter;
+                return matchSearch && matchStatus;
             });
 
-            function logout() {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = '';
+                return;
             }
 
-            // 統計更新
-            function updateStats(apps) {
-                const role = sessionStorage.getItem('as_role');
-                const currentUser = sessionStorage.getItem('as_login_user');
-                // user権限の場合は自分が登録したものだけを対象とする
-                const myApps = role === 'admin' ? apps : apps.filter(a => a.submittedBy === currentUser);
+            emptyState.style.display = 'none';
+            tbody.innerHTML = filtered.map((app, i) => {
+                const statusClass =
+                    app.status === '1次申込完了' ? 'status-1st' :
+                        app.status === '申込完了' ? 'status-new' : 'status-done';
 
-                document.getElementById('statTotal').textContent = myApps.length;
-                document.getElementById('statNew').textContent = myApps.filter(a => a.status === '新規').length;
-                document.getElementById('statDone').textContent = myApps.filter(a => a.status === '完了').length;
-            }
-
-            // テーブル描画
-            function renderTable(apps) {
-                const role = sessionStorage.getItem('as_role');
-                const currentUser = sessionStorage.getItem('as_login_user');
-                const search = document.getElementById('searchInput').value.trim().toLowerCase();
-                const statusFilter = document.getElementById('statusFilter').value;
-                const tbody = document.getElementById('applicationTableBody');
-                const emptyState = document.getElementById('emptyState');
-
-                let filtered = apps.filter(app => {
-                    // Role filter
-                    if (role !== 'admin' && app.submittedBy !== currentUser) return false;
-
-                    const cName = (app.companyName || '').toLowerCase();
-                    const ctName = (app.contactName || '').toLowerCase();
-                    const matchSearch = !search || cName.includes(search) || ctName.includes(search);
-                    const matchStatus = !statusFilter || app.status === statusFilter;
-                    return matchSearch && matchStatus;
-                });
-
-                if (filtered.length === 0) {
-                    tbody.innerHTML = '';
-                    emptyState.style.display = '';
-                    return;
+                let actionHtml = `<button class="btn-detail" onclick="openDetail('${app.id}')">詳細</button>`;
+                if (app.status === '1次申込完了') {
+                    actionHtml += ` <button class="btn btn-secondary" onclick="startSecondStage('${app.id}')" style="padding:4px 10px; font-size:0.7rem; margin-left:5px;">2次申込へ</button>`;
                 }
 
-                emptyState.style.display = 'none';
-                tbody.innerHTML = filtered.map((app, i) => {
-                    const statusClass =
-                        app.status === '1次申込完了' ? 'status-1st' :
-                            app.status === '申込完了' ? 'status-new' : 'status-done';
-
-                    let actionHtml = `<button class="btn-detail" onclick="openDetail('${app.id}')">詳細</button>`;
-                    if (app.status === '1次申込完了') {
-                        actionHtml += ` <button class="btn btn-secondary" onclick="startSecondStage('${app.id}')" style="padding:4px 10px; font-size:0.7rem; margin-left:5px;">2次申込へ</button>`;
-                    }
-
-                    return `<tr>
+                return `<tr>
                     <td>${i + 1}</td>
                     <td>${app.applicationDate || '―'}</td>
                     <td><strong>${app.companyName || '―'}</strong></td>
@@ -591,257 +587,257 @@
                     <td><span class="status-badge ${statusClass}">${app.status}</span></td>
                     <td>${actionHtml}</td>
                 </tr>`;
-                }).join('');
-            }
+            }).join('');
+        }
 
-            function startSecondStage(id) {
-                window.location.href = `index.html?id=${id}&stage=2`;
-            }
+        function startSecondStage(id) {
+            window.location.href = `index.html?id=${id}&stage=2`;
+        }
 
-            async function filterTable() {
-                // ローカルにあるキャッシュ（LocalStorage）を使うか、再度APIを呼ぶか
-                // 検索時はキャッシュを使うことで高速化
-                const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
-                renderTable(apps);
-            }
+        async function filterTable() {
+            // ローカルにあるキャッシュ（LocalStorage）を使うか、再度APIを呼ぶか
+            // 検索時はキャッシュを使うことで高速化
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
+            renderTable(apps);
+        }
 
-            function openDetail(id) {
-                const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
-                const app = apps.find(a => String(a.id) === String(id));
-                if (!app) return;
-                currentAppId = id;
+        function openDetail(id) {
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
+            const app = apps.find(a => String(a.id) === String(id));
+            if (!app) return;
+            currentAppId = id;
 
-                document.getElementById('modalTitle').textContent = `申込詳細 - ${app.companyName || ''}`;
-                document.getElementById('statusSelect').value = app.status;
+            document.getElementById('modalTitle').textContent = `申込詳細 - ${app.companyName || ''}`;
+            document.getElementById('statusSelect').value = app.status;
 
-                // 管理者以外はステータス更新エリアを非表示
-                const role = sessionStorage.getItem('as_role');
-                document.getElementById('modalFooter').style.display = (role === 'admin') ? '' : 'none';
+            // 管理者以外はステータス更新エリアを非表示
+            const role = sessionStorage.getItem('as_role');
+            document.getElementById('modalFooter').style.display = (role === 'admin') ? '' : 'none';
 
-                const h = (label, value) => `<tr><th>${label}</th><td>${value || '―'}</td></tr>`;
-                let html = '';
+            const h = (label, value) => `<tr><th>${label}</th><td>${value || '―'}</td></tr>`;
+            let html = '';
 
-                // ①基本情報
-                html += '<div class="confirm-section-title">①お申込み情報</div>';
-                html += '<table class="confirm-table">';
-                html += h('申込日', app.applicationDate);
-                html += h('申込種別', app.applicationType);
-                html += h('法人名/屋号', app.companyName);
-                html += h('法人名カナ', app.companyKana);
-                html += h('代表者名', app.representativeName);
-                html += h('担当者名', app.contactName);
-                html += h('電話番号', app.phone);
-                html += h('FAX', app.fax);
-                html += h('メールアドレス', app.email);
-                html += h('住所', [app.prefecture, app.city, app.town, app.block, app.additionalAddress].filter(Boolean).join(' '));
-                html += '</table>';
+            // ①基本情報
+            html += '<div class="confirm-section-title">①お申込み情報</div>';
+            html += '<table class="confirm-table">';
+            html += h('申込日', app.applicationDate);
+            html += h('申込種別', app.applicationType);
+            html += h('法人名/屋号', app.companyName);
+            html += h('法人名カナ', app.companyKana);
+            html += h('代表者名', app.representativeName);
+            html += h('担当者名', app.contactName);
+            html += h('電話番号', app.phone);
+            html += h('FAX', app.fax);
+            html += h('メールアドレス', app.email);
+            html += h('住所', [app.prefecture, app.city, app.town, app.block, app.additionalAddress].filter(Boolean).join(' '));
+            html += '</table>';
 
-                // ②店舗情報
-                if (app.stores && app.stores.length > 0) {
-                    html += '<div class="confirm-section-title">②店舗情報</div>';
-                    app.stores.forEach((s, i) => {
-                        html += '<table class="confirm-table">';
-                        html += h(`店舗${i + 1}`, s.storeName);
-                        html += h('フリガナ', s.storeKana);
-                        html += h('電話番号', s.storePhone);
-                        html += h('住所', [s.storePostal, s.storePrefecture, s.storeCity, s.storeTown].filter(Boolean).join(' '));
-                        html += '</table>';
-                    });
-                }
-
-                // ③請求情報
-                if (app.billing) {
-                    html += '<div class="confirm-section-title">③請求情報</div>';
+            // ②店舗情報
+            if (app.stores && app.stores.length > 0) {
+                html += '<div class="confirm-section-title">②店舗情報</div>';
+                app.stores.forEach((s, i) => {
                     html += '<table class="confirm-table">';
-                    const bills = [];
-                    if (app.billing.billingCompany) bills.push('法人');
-                    if (app.billing.billingStore) bills.push('店舗');
-                    if (app.billing.billingExisting) bills.push('既存');
-                    html += h('請求先', bills.join('、') || '―');
+                    html += h(`店舗${i + 1}`, s.storeName);
+                    html += h('フリガナ', s.storeKana);
+                    html += h('電話番号', s.storePhone);
+                    html += h('住所', [s.storePostal, s.storePrefecture, s.storeCity, s.storeTown].filter(Boolean).join(' '));
                     html += '</table>';
-                }
+                });
+            }
 
-                // ④商品情報
-                if (app.products && app.products.length > 0) {
-                    html += '<div class="confirm-section-title">④商品情報</div>';
-                    app.products.forEach((p, i) => {
-                        html += '<table class="confirm-table">';
-                        html += h(`商品${i + 1}`, p.name);
-                        html += h('単価', (p.unitPrice || 0).toLocaleString() + '円');
-                        html += h('数量', p.quantity);
-                        html += h('備考', p.remark);
-                        html += '</table>';
-                    });
-                }
-
-                // ⑤AS契約情報
-                if (app.contract && app.contract.rows && app.contract.rows.length > 0) {
-                    html += '<div class="confirm-section-title">⑤AS契約情報</div>';
-                    app.contract.rows.forEach((c, i) => {
-                        html += '<table class="confirm-table">';
-                        html += h('サービス名', c.service);
-                        html += h('無料期間', c.freePeriod);
-                        html += h('契約期間', c.contractPeriod);
-                        html += h('月額単価', (c.unitPrice || 0).toLocaleString() + '円');
-                        html += h('数量', c.quantity);
-                        html += h('備考', c.remark);
-                        html += '</table>';
-                    });
-                }
-
-                // ⑥契約物件金額
-                if (app.propertyAmount) {
-                    html += '<div class="confirm-section-title">⑥契約物件金額</div>';
-                    html += '<table class="confirm-table">';
-                    html += h('販売物件金額', (app.propertyAmount.propertyPrice || 0).toLocaleString() + '円');
-                    const pm = [];
-                    if (app.propertyAmount.payCash) pm.push('現金一括');
-                    if (app.propertyAmount.payInstallment) pm.push('割賦');
-                    html += h('支払方法', pm.join('、') || '―');
-                    html += h('初回分割金額', (app.propertyAmount.firstInstallment || 0).toLocaleString() + '円');
-                    html += h('2回目以降', (app.propertyAmount.subsequentInstallment || 0).toLocaleString() + '円');
-                    html += h('支払い回数', app.propertyAmount.installmentCount ? app.propertyAmount.installmentCount + '回' : '―');
-                    html += '</table>';
-                }
-
-                // ⑦ドメイン情報
-                if (app.domain) {
-                    html += '<div class="confirm-section-title">⑦ドメイン情報</div>';
-                    html += '<table class="confirm-table">';
-                    html += h('メールアドレス', app.domain.email);
-                    html += h('登記年月日', app.domain.registrationDate);
-                    const dc = [];
-                    if (app.domain.domainNew) dc.push('新規');
-                    if (app.domain.domainTransfer) dc.push('移行');
-                    html += h('ドメイン区分', dc.join('、') || '―');
-                    html += h('ドメイン', app.domain.domainName);
-                    if (app.domain.tld) {
-                        const tlds = [];
-                        if (app.domain.tld.com) tlds.push('.com');
-                        if (app.domain.tld.net) tlds.push('.net');
-                        if (app.domain.tld.info) tlds.push('.info');
-                        if (app.domain.tld.jp) tlds.push('.jp');
-                        if (app.domain.tld.other) tlds.push('その他: ' + (app.domain.tld.otherValue || ''));
-                        html += h('TLD', tlds.join('、') || '―');
-                    }
-                    html += h('英文表記', app.domain.englishName);
-                    const sf = [];
-                    if (app.domain.suffixCoLtd) sf.push('.co.ltd');
-                    if (app.domain.suffixInc) sf.push('.inc');
-                    html += h('英文表記種別', sf.join('、') || '―');
-                    html += '</table>';
-                }
-
-                // ⑧ 申込担当者情報
-                html += '<div class="confirm-section-title">⑧ 申込担当者情報</div>';
+            // ③請求情報
+            if (app.billing) {
+                html += '<div class="confirm-section-title">③請求情報</div>';
                 html += '<table class="confirm-table">';
-                html += h('営業担当者氏名', app.salesRepName);
-                html += h('営業担当者メールアドレス', app.salesRepEmail);
-                html += h('お客様氏名', app.signerName);
-                html += h('お客様メールアドレス', app.signerEmail);
+                const bills = [];
+                if (app.billing.billingCompany) bills.push('法人');
+                if (app.billing.billingStore) bills.push('店舗');
+                if (app.billing.billingExisting) bills.push('既存');
+                html += h('請求先', bills.join('、') || '―');
                 html += '</table>';
+            }
 
-                // ⑨ 添付書類
-                html += '<div class="confirm-section-title">⑨ 添付書類</div>';
+            // ④商品情報
+            if (app.products && app.products.length > 0) {
+                html += '<div class="confirm-section-title">④商品情報</div>';
+                app.products.forEach((p, i) => {
+                    html += '<table class="confirm-table">';
+                    html += h(`商品${i + 1}`, p.name);
+                    html += h('単価', (p.unitPrice || 0).toLocaleString() + '円');
+                    html += h('数量', p.quantity);
+                    html += h('備考', p.remark);
+                    html += '</table>';
+                });
+            }
+
+            // ⑤AS契約情報
+            if (app.contract && app.contract.rows && app.contract.rows.length > 0) {
+                html += '<div class="confirm-section-title">⑤AS契約情報</div>';
+                app.contract.rows.forEach((c, i) => {
+                    html += '<table class="confirm-table">';
+                    html += h('サービス名', c.service);
+                    html += h('無料期間', c.freePeriod);
+                    html += h('契約期間', c.contractPeriod);
+                    html += h('月額単価', (c.unitPrice || 0).toLocaleString() + '円');
+                    html += h('数量', c.quantity);
+                    html += h('備考', c.remark);
+                    html += '</table>';
+                });
+            }
+
+            // ⑥契約物件金額
+            if (app.propertyAmount) {
+                html += '<div class="confirm-section-title">⑥契約物件金額</div>';
                 html += '<table class="confirm-table">';
-                html += h('ファイル名', app.pdfFileName);
+                html += h('販売物件金額', (app.propertyAmount.propertyPrice || 0).toLocaleString() + '円');
+                const pm = [];
+                if (app.propertyAmount.payCash) pm.push('現金一括');
+                if (app.propertyAmount.payInstallment) pm.push('割賦');
+                html += h('支払方法', pm.join('、') || '―');
+                html += h('初回分割金額', (app.propertyAmount.firstInstallment || 0).toLocaleString() + '円');
+                html += h('2回目以降', (app.propertyAmount.subsequentInstallment || 0).toLocaleString() + '円');
+                html += h('支払い回数', app.propertyAmount.installmentCount ? app.propertyAmount.installmentCount + '回' : '―');
                 html += '</table>';
-
-                document.getElementById('modalBody').innerHTML = html;
-                document.getElementById('detailModal').classList.add('show');
             }
 
-            function closeModal() {
-                document.getElementById('detailModal').classList.remove('show');
-                currentAppId = null;
+            // ⑦ドメイン情報
+            if (app.domain) {
+                html += '<div class="confirm-section-title">⑦ドメイン情報</div>';
+                html += '<table class="confirm-table">';
+                html += h('メールアドレス', app.domain.email);
+                html += h('登記年月日', app.domain.registrationDate);
+                const dc = [];
+                if (app.domain.domainNew) dc.push('新規');
+                if (app.domain.domainTransfer) dc.push('移行');
+                html += h('ドメイン区分', dc.join('、') || '―');
+                html += h('ドメイン', app.domain.domainName);
+                if (app.domain.tld) {
+                    const tlds = [];
+                    if (app.domain.tld.com) tlds.push('.com');
+                    if (app.domain.tld.net) tlds.push('.net');
+                    if (app.domain.tld.info) tlds.push('.info');
+                    if (app.domain.tld.jp) tlds.push('.jp');
+                    if (app.domain.tld.other) tlds.push('その他: ' + (app.domain.tld.otherValue || ''));
+                    html += h('TLD', tlds.join('、') || '―');
+                }
+                html += h('英文表記', app.domain.englishName);
+                const sf = [];
+                if (app.domain.suffixCoLtd) sf.push('.co.ltd');
+                if (app.domain.suffixInc) sf.push('.inc');
+                html += h('英文表記種別', sf.join('、') || '―');
+                html += '</table>';
             }
 
-            async function updateStatus() {
-                if (!currentAppId) return;
-                const newStatus = document.getElementById('statusSelect').value;
-                const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
-                const app = apps.find(a => String(a.id) === String(currentAppId));
+            // ⑧ 申込担当者情報
+            html += '<div class="confirm-section-title">⑧ 申込担当者情報</div>';
+            html += '<table class="confirm-table">';
+            html += h('営業担当者氏名', app.salesRepName);
+            html += h('営業担当者メールアドレス', app.salesRepEmail);
+            html += h('お客様氏名', app.signerName);
+            html += h('お客様メールアドレス', app.signerEmail);
+            html += '</table>';
 
-                if (app) {
-                    app.status = newStatus;
+            // ⑨ 添付書類
+            html += '<div class="confirm-section-title">⑨ 添付書類</div>';
+            html += '<table class="confirm-table">';
+            html += h('ファイル名', app.pdfFileName);
+            html += '</table>';
 
-                    // APIに更新を投げる
-                    const success = await saveApplication(app);
-                    if (success) {
-                        // API保存成功後、再度全一覧を取得して画面をリフレッシュ
-                        const refreshedApps = await loadApplications();
-                        renderTable(refreshedApps);
-                        updateStats(refreshedApps);
-                        showToast(`ステータスを「${newStatus}」に更新しました`, 'success');
-                        closeModal();
-                    } else {
-                        showToast('ステータス更新に失敗しました。', 'error');
-                    }
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+            currentAppId = null;
+        }
+
+        async function updateStatus() {
+            if (!currentAppId) return;
+            const newStatus = document.getElementById('statusSelect').value;
+            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
+            const app = apps.find(a => String(a.id) === String(currentAppId));
+
+            if (app) {
+                app.status = newStatus;
+
+                // APIに更新を投げる
+                const success = await saveApplication(app);
+                if (success) {
+                    // API保存成功後、再度全一覧を取得して画面をリフレッシュ
+                    const refreshedApps = await loadApplications();
+                    renderTable(refreshedApps);
+                    updateStats(refreshedApps);
+                    showToast(`ステータスを「${newStatus}」に更新しました`, 'success');
+                    closeModal();
+                } else {
+                    showToast('ステータス更新に失敗しました。', 'error');
                 }
             }
+        }
 
-            document.getElementById('detailModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('detailModal')) closeModal();
-            });
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('detailModal')) closeModal();
+        });
 
-            function showToast(message, type = 'success') {
-                const t = document.getElementById('toast');
-                t.textContent = message;
-                t.className = 'toast show ' + (type === 'error' ? 'toast-error' : '');
-                setTimeout(() => t.classList.remove('show'), 3000);
+        function showToast(message, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = message;
+            t.className = 'toast show ' + (type === 'error' ? 'toast-error' : '');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ----------------------------------------
+        // アカウント追加関連
+        // ----------------------------------------
+        function openAccountModal() {
+            document.getElementById('newUserId').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserRole').value = 'user';
+            document.getElementById('accountModal').classList.add('show');
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').classList.remove('show');
+        }
+
+        async function submitAccount() {
+            const userId = document.getElementById('newUserId').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim();
+            const role = document.getElementById('newUserRole').value;
+
+            if (!userId || !password) {
+                alert("ユーザーIDとパスワードは必須です。");
+                return;
             }
 
-            // ----------------------------------------
-            // アカウント追加関連
-            // ----------------------------------------
-            function openAccountModal() {
-                document.getElementById('newUserId').value = '';
-                document.getElementById('newUserPassword').value = '';
-                document.getElementById('newUserRole').value = 'user';
-                document.getElementById('accountModal').classList.add('show');
-            }
+            const btn = document.getElementById('btnSubmitAccount');
+            btn.disabled = true;
+            btn.textContent = '登録中...';
 
-            function closeAccountModal() {
-                document.getElementById('accountModal').classList.remove('show');
-            }
+            try {
+                const res = await fetch(API_BASE_URL + '/Auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, password, role })
+                });
 
-            async function submitAccount() {
-                const userId = document.getElementById('newUserId').value.trim();
-                const password = document.getElementById('newUserPassword').value.trim();
-                const role = document.getElementById('newUserRole').value;
-
-                if (!userId || !password) {
-                    alert("ユーザーIDとパスワードは必須です。");
-                    return;
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showToast('アカウントを作成しました', 'success');
+                    closeAccountModal();
+                } else {
+                    alert('エラー: ' + (data.message || '作成に失敗しました'));
                 }
-
-                const btn = document.getElementById('btnSubmitAccount');
-                btn.disabled = true;
-                btn.textContent = '登録中...';
-
-                try {
-                    const res = await fetch(API_BASE_URL + '/Auth/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId, password, role })
-                    });
-
-                    const data = await res.json();
-                    if (res.ok && data.success) {
-                        showToast('アカウントを作成しました', 'success');
-                        closeAccountModal();
-                    } else {
-                        alert('エラー: ' + (data.message || '作成に失敗しました'));
-                    }
-                } catch (err) {
-                    console.error('Account creation error:', err);
-                    alert('サーバーとの通信に失敗しました');
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = '登録する';
-                }
+            } catch (err) {
+                console.error('Account creation error:', err);
+                alert('サーバーとの通信に失敗しました');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '登録する';
             }
-        </script>
+        }
+    </script>
 </body>
 
 </html>
