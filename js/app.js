@@ -152,7 +152,9 @@ function togglePropertySection(enabled) {
     // 2次申込時のヒント表示
     if (enabled) {
         const header = section.previousElementSibling;
-        if (header) header.innerHTML += ' <span style="font-size:0.75rem; color:#e74c3c; font-weight:normal;">(2次申込: 入力可能になりました)</span>';
+        if (header && !header.innerHTML.includes('(2次申込:')) {
+            header.innerHTML = '⑥契約物件金額 <span class="required">※必須</span> <span style="font-size:0.75rem; color:#fff; font-weight:normal;">(2次申込: 入力可能になりました)</span>';
+        }
     }
 }
 
@@ -963,6 +965,20 @@ function validateForm() {
         { id: 'postalCode', label: '郵便番号' },
         { id: 'prefecture', label: '都道府県' },
     ];
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('stage') === '2') {
+        required.push(
+            { id: 'propertyPrice', label: '販売物件金額' },
+            { id: 'firstInstallment', label: '初回分割支払金額' },
+            { id: 'subsequentInstallment', label: '2回目以降分割支払金額' },
+            { id: 'installmentCount', label: '支払い回数' }
+        );
+
+        if (!document.getElementById('payCash')?.checked && !document.getElementById('payInstallment')?.checked) {
+            errors.push('支払方法を選択してください');
+        }
+    }
 
     required.forEach(field => {
         const el = document.getElementById(field.id);
