@@ -7,7 +7,8 @@
 // ==========================
 const CONFIG = {
     // API_BASE_URL: 'http://localhost:5050/api', // ローカルでのみ動かす場合
-    API_BASE_URL: 'as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net', // 別端末からもアクセスさせる場合
+    // API_BASE_URL: 'http://192.168.10.143:5050/api', // 別端末からもアクセスさせる場合
+    API_BASE_URL: 'https://as-backend-api-ecgkdbb6gdc3etbr.japanwest-01.azurewebsites.net/api', // Azure環境
     USE_MOCK: false,
 };
 
