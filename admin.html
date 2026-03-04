@@ -502,9 +502,9 @@
                     app.status === '1次申込完了' ? 'status-1st' :
                         app.status === '申込完了' ? 'status-new' : 'status-done';
 
-                let actionHtml = `<button class="btn-detail" onclick="openDetail(${app.id})">詳細</button>`;
+                let actionHtml = `<button class="btn-detail" onclick="openDetail('${app.id}')">詳細</button>`;
                 if (app.status === '1次申込完了') {
-                    actionHtml += ` <button class="btn btn-secondary" onclick="startSecondStage(${app.id})" style="padding:4px 10px; font-size:0.7rem; margin-left:5px;">2次申込へ</button>`;
+                    actionHtml += ` <button class="btn btn-secondary" onclick="startSecondStage('${app.id}')" style="padding:4px 10px; font-size:0.7rem; margin-left:5px;">2次申込へ</button>`;
                 }
 
                 return `<tr>
@@ -527,7 +527,7 @@
 
         function openDetail(id) {
             const apps = loadApplications();
-            const app = apps.find(a => a.id === id);
+            const app = apps.find(a => String(a.id) === String(id));
             if (!app) return;
             currentAppId = id;
 
@@ -680,7 +680,7 @@
             if (!currentAppId) return;
             const newStatus = document.getElementById('statusSelect').value;
             const apps = loadApplications();
-            const app = apps.find(a => a.id === currentAppId);
+            const app = apps.find(a => String(a.id) === String(currentAppId));
             if (app) {
                 app.status = newStatus;
                 saveApplications(apps);
