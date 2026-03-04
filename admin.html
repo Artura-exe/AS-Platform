@@ -57,30 +57,33 @@
         .admin-header-right {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.8rem;
         }
 
-        .admin-user-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 16px;
             border-radius: 20px;
+        }
+
+        .user-info span {
             font-weight: 600;
         }
 
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             color: #fff;
-            padding: 4px 14px;
-            border-radius: var(--radius);
             cursor: pointer;
-            font-size: 0.75rem;
+            border-radius: var(--radius);
             font-weight: 600;
             transition: var(--transition);
         }
 
-        .btn-logout:hover {
+        .btn-outline:hover {
             background: rgba(255, 255, 255, 0.3);
         }
 
