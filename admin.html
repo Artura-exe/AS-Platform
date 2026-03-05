@@ -369,7 +369,7 @@
         <div class="admin-toolbar">
             <div style="display:flex; gap:12px; align-items:center;">
                 <input type="text" id="searchInput" placeholder="🔍 法人名・担当者名で検索..." oninput="filterTable()"
-                    autocomplete="off">
+                    autocomplete="one-time-code" readonly onfocus="this.removeAttribute('readonly');">
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="">すべてのステータス</option>
                     <option value="1次申込完了">1次申込完了</option>
