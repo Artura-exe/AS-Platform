@@ -368,7 +368,8 @@
 
         <div class="admin-toolbar">
             <div style="display:flex; gap:12px; align-items:center;">
-                <input type="text" id="searchInput" placeholder="🔍 法人名・担当者名で検索..." oninput="filterTable()">
+                <input type="text" id="searchInput" placeholder="🔍 法人名・担当者名で検索..." oninput="filterTable()"
+                    autocomplete="off">
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="">すべてのステータス</option>
                     <option value="1次申込完了">1次申込完了</option>
@@ -386,7 +387,6 @@
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>No.</th>
                         <th>申込日</th>
                         <th>法人名/屋号</th>
                         <th>担当者名</th>
@@ -567,6 +567,16 @@
                 return;
             }
 
+            // 新しい順（ID降順）でソート
+            // バックエンドのIDは APP-YYYYMMDDHHMMSS-xxxx の形式なので、文字列比較で降順にソートする
+            filtered.sort((a, b) => {
+                const idA = a.id || '';
+                const idB = b.id || '';
+                if (idA > idB) return -1;
+                if (idA < idB) return 1;
+                return 0;
+            });
+
             emptyState.style.display = 'none';
             tbody.innerHTML = filtered.map((app, i) => {
                 const statusClass =
@@ -579,7 +589,6 @@
                 }
 
                 return `<tr>
-                    <td>${i + 1}</td>
                     <td>${app.applicationDate || '―'}</td>
                     <td><strong>${app.companyName || '―'}</strong></td>
                     <td>${app.contactName || '―'}</td>
@@ -755,15 +764,21 @@
         async function updateStatus() {
             if (!currentAppId) return;
             const newStatus = document.getElementById('statusSelect').value;
-            const apps = JSON.parse(localStorage.getItem('as_applications') || '[]');
-            const app = apps.find(a => String(a.id) === String(currentAppId));
 
-            if (app) {
-                app.status = newStatus;
+            const btn = document.querySelector('.modal-footer .btn-primary');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '更新中...';
 
-                // APIに更新を投げる
-                const success = await saveApplication(app);
-                if (success) {
+            try {
+                // 新しい PATCH エンドポイントにリクエスト
+                const res = await fetch(`${API_BASE_URL}/Application/${currentAppId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
                     // API保存成功後、再度全一覧を取得して画面をリフレッシュ
                     const refreshedApps = await loadApplications();
                     renderTable(refreshedApps);
@@ -771,8 +786,15 @@
                     showToast(`ステータスを「${newStatus}」に更新しました`, 'success');
                     closeModal();
                 } else {
-                    showToast('ステータス更新に失敗しました。', 'error');
+                    const errData = await res.json();
+                    showToast('ステータス更新に失敗しました: ' + (errData.message || 'Error'), 'error');
                 }
+            } catch (e) {
+                console.error('Status update error:', e);
+                showToast('サーバーとの通信に失敗しました', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
             }
         }
 

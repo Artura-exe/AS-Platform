@@ -210,7 +210,8 @@ function addStoreEntry() {
       <input type="text" placeholder="都道府県" class="input-xs" id="storePref${storeCount}">
       <input type="text" placeholder="市区郡" class="input-sm" id="storeCity${storeCount}">
       <input type="text" placeholder="町域" class="input-sm" id="storeTown${storeCount}">
-      <input type="text" placeholder="丁目番号" class="input-sm">
+      <input type="text" placeholder="丁目番号" class="input-sm" id="storeBlock${storeCount}">
+      <input type="text" placeholder="付帯住所 (建物名等)" class="input-md" id="storeAdditional-${storeCount}">
     </div>
   `;
 
@@ -230,6 +231,38 @@ function removeStoreEntry(id) {
         entry.remove();
     }
 }
+
+/**
+ * 契約情報の入力内容を店舗情報にコピーする
+ */
+function copyContractInfoToStore() {
+    const container = document.getElementById('storeContainer');
+    if (!container) return;
+
+    if (container.children.length === 0) {
+        addStoreEntry();
+    }
+
+    const lastStore = container.lastElementChild;
+    const inputs = lastStore.querySelectorAll('input');
+
+    // addStoreEntry で生成される input 順序:
+    // 0:店舗名, 1:店舗名カナ, 2:電話番号, 3:郵便番号, 4:都道府県, 5:市区郡, 6:町域, 7:丁目番号, 8:付帯住所
+    if (inputs.length >= 9) {
+        inputs[0].value = document.getElementById('companyName')?.value || '';
+        inputs[1].value = document.getElementById('companyKana')?.value || '';
+        inputs[2].value = document.getElementById('phone')?.value || '';
+        inputs[3].value = document.getElementById('postalCode')?.value || '';
+        inputs[4].value = document.getElementById('prefecture')?.value || '';
+        inputs[5].value = document.getElementById('city')?.value || '';
+        inputs[6].value = document.getElementById('town')?.value || '';
+        inputs[7].value = document.getElementById('block')?.value || '';
+        inputs[8].value = document.getElementById('additionalAddress')?.value || '';
+
+        showToast('契約情報を店舗欄にコピーしました', 'success');
+    }
+}
+
 
 // ==========================
 // ④商品情報 - 動的追加/削除
@@ -631,6 +664,12 @@ function buildConfirmHtml() {
 // フォーム送信
 // ==========================
 async function submitForm() {
+    const btnSubmit = document.querySelector('#step-confirm .btn-primary[onclick="submitForm()"]');
+    const loader = document.getElementById('fullScreenLoader');
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (loader) loader.style.display = 'flex';
+
     const formData = await collectFormData();
     const params = new URLSearchParams(window.location.search);
     const existingId = params.get('id');
@@ -642,6 +681,17 @@ async function submitForm() {
     let status = '1次申込完了';
     if (stage == '2') {
         status = '申込完了';
+    }
+
+    // PDFをBase64に変換 (存在する場合)
+    let pdfBase64Data = formData.pdfBase64 || '';
+    if (selectedPdfFile) {
+        pdfBase64Data = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(selectedPdfFile);
+        });
     }
 
     let finalEntry;
@@ -665,7 +715,7 @@ async function submitForm() {
             status: status,
             pdfFileName: selectedPdfFile ? selectedPdfFile.name : '',
             pdfFileSize: selectedPdfFile ? selectedPdfFile.size : 0,
-            pdfBase64: formData.pdfBase64 || '', // Base64データを格納
+            pdfBase64: pdfBase64Data, // 変換済みのBase64データを格納
             submittedAt: new Date().toISOString(),
             submittedBy: sessionStorage.getItem('as_login_user'),
             ...formData,
@@ -683,7 +733,9 @@ async function submitForm() {
     // APIへデータを送信 (SQL Serverへ保存)
     const apiResult = await saveApplicationToApi(finalEntry);
     if (!apiResult) {
-        // 保存失敗時はここで止める（ローカルにも保存しない）
+        // 保存失敗時はローダーを隠してボタンを戻す
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (loader) loader.style.display = 'none';
         return;
     }
 
@@ -701,21 +753,8 @@ async function submitForm() {
     }
     localStorage.setItem('as_applications', JSON.stringify(stored));
 
-    // メール本文を組み立て
-    const emailBody = buildEmailBody(formData);
-    const emailSubject = '【ASホームページ】お申込みありがとうございます。';
-
-    // 添付ファイルがある場合は Base64 変換して送信
-    if (selectedPdfFile) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const base64Data = e.target.result.split(',')[1];
-            sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail, base64Data, selectedPdfFile.name);
-        };
-        reader.readAsDataURL(selectedPdfFile);
-    } else {
-        sendMail(emailSubject, emailBody, formData.signerEmail, formData.salesRepEmail);
-    }
+    // メール送信機能はバックエンドの ApplicationService に統合されたため、
+    // ここでの fetch(/application/send-mail) の呼び出し・メール本文構築は削除しました。
 
     showToast('申込データを送信しました', 'success');
 
@@ -729,6 +768,9 @@ async function submitForm() {
         titleEl.textContent = '1次申込が完了しました';
         msgEl.innerHTML = '1次申込み（新規登録）を受け付けました。<br>引き続き、物件金額等の詳細情報の入力（本申込）をお願いいたします。';
     }
+
+    // ローダーを隠す
+    if (loader) loader.style.display = 'none';
 
     document.getElementById('step-input').style.display = 'none';
     document.getElementById('step-confirm').style.display = 'none';
@@ -772,155 +814,7 @@ async function saveApplicationToApi(data) {
 }
 
 
-/**
- * メール送信実行
- */
-function sendMail(subject, body, to, cc, attachment = null, attachmentName = null) {
-    const payload = { subject, body, to, cc };
-    if (attachment) {
-        payload.attachment = attachment;
-        payload.attachmentName = attachmentName;
-    }
 
-    fetch(CONFIG.API_BASE_URL + '/application/send-mail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    })
-        .then(res => res.json())
-        .then(result => {
-            if (result.success) {
-                console.log('メール送信成功:', result.message);
-            } else {
-                console.warn('メール送信失敗:', result.message);
-            }
-        })
-        .catch(err => {
-            console.warn('メール送信エラー:', err);
-        })
-        .catch(err => {
-            console.warn('メール送信エラー:', err);
-        });
-}
-
-function buildEmailBody(d) {
-    const L = [];
-    L.push('お申込みありがとうございます。');
-    L.push('※※※※※※※※※※※※※※※※※');
-
-    const addr = [d.prefecture, d.city, d.town, d.block, d.additionalAddress].filter(Boolean).join('');
-
-    L.push(`申込日：${d.applicationDate || ''}`);
-    L.push(`申込種別：${d.applicationType || ''}`);
-    L.push(`企業名：${d.companyName || ''}`);
-    L.push(`企業名ﾌﾘｶﾞﾅ：${d.companyKana || ''}`);
-    L.push(`郵便番号：${d.postalCode || ''}`);
-    L.push(`契約住所：${addr}`);
-    L.push(`電話番号：${d.phone || ''}`);
-    L.push(`FAX：${d.fax || ''}`);
-    L.push(`代表者名：${d.representativeName || ''}`);
-    L.push(`代表者名ｶﾅ：${d.representativeKana || ''}`);
-    L.push(`担当者名：${d.contactName || ''}`);
-    L.push(`担当者ｶﾅ：${d.contactKana || ''}`);
-    L.push(`担当者所属部署連絡先：${d.phone2 || ''}`);
-    L.push(`担当者携帯電話番号：${d.phone2 || ''}`);
-    L.push(`担当者メール：${d.email || ''}`);
-
-    // 店舗情報
-    const stores = d.stores || [];
-    L.push(`申込店舗数：${stores.length}`);
-    for (let i = 0; i < 3; i++) {
-        const idx = i + 1;
-        if (i < stores.length) {
-            const s = stores[i];
-            const sAddr = [s.postalCode ? '' : '', s.prefecture, s.city, s.town, s.block].filter(Boolean).join('');
-            L.push(`店舗名${idx}：${s.storeName || ''}`);
-            L.push(`店舗ﾌﾘｶﾞﾅ${idx}：${s.storeKana || ''}`);
-            L.push(`店舗郵便番号${idx}：${s.postalCode || ''}`);
-            L.push(`店舗住所${idx}：${sAddr}`);
-            L.push(`店舗TEL${idx}：${s.storePhone || ''}`);
-            L.push(`店舗FAX${idx}：`);
-        } else {
-            L.push(`店舗名${idx}：`);
-            L.push(`店舗ﾌﾘｶﾞﾅ${idx}：`);
-            L.push(`店舗郵便番号${idx}：`);
-            L.push(`店舗住所${idx}：`);
-            L.push(`店舗TEL${idx}：`);
-            L.push(`店舗FAX${idx}：`);
-        }
-    }
-
-    // 請求
-    const billing = d.billing || {};
-    let billText = '';
-    if (billing.company) billText = '企業宛';
-    else if (billing.store) billText = '店舗宛';
-    else if (billing.existing) billText = '既存宛';
-    L.push(`請求に関して：${billText}`);
-
-    // 商品・契約
-    const products = d.products || [];
-    const contractRows = (d.contract && d.contract.rows) || [];
-
-    const planNames = ['AS', 'EC機能', '求人ページ'];
-    planNames.forEach((pn, pi) => {
-        const prod = products.find(p => p.name === pn);
-        const cont = pi < contractRows.length ? contractRows[pi] : null;
-
-        L.push(`${pn}無料期間：${cont ? cont.freePeriod || '' : ''}`);
-        L.push(`${pn}契約期間：${cont ? cont.contractPeriod || '' : ''}`);
-        const iup = prod ? (prod.unitPrice || 0) : 0;
-        const iq = prod ? (prod.quantity || 0) : 0;
-        L.push(`${pn}初期費用単価：${iup > 0 ? iup : ''}`);
-        L.push(`${pn}数量：${iq > 0 ? iq : ''}`);
-        L.push(`${pn}初期費用総額：${iup * iq > 0 ? iup * iq : ''}`);
-        const mup = cont ? (cont.unitPrice || 0) : 0;
-        const mq = cont ? (cont.quantity || 0) : 0;
-        L.push(`${pn}月額単価：${mup > 0 ? mup : ''}`);
-        L.push(`${pn}月額数量：${mq > 0 ? mq : ''}`);
-        L.push(`${pn}月額総額：${mup * mq > 0 ? mup * mq : ''}`);
-    });
-
-    L.push('インスタ連携月額単価：');
-    L.push('インスタ連携数量：');
-    L.push('インスタ連携月額総額：');
-    L.push('サービス名：');
-    L.push('ASオプション月額単価：');
-    L.push('ASオプション数量：');
-    L.push('ASオプション月額総額：');
-
-    // 契約物件金額
-    const prop = d.propertyAmount || {};
-    L.push(`販売物件合計：${prop.propertyPrice || ''}`);
-    const pm = [];
-    if (prop.payCash) pm.push('現金一括');
-    if (prop.payInstallment) pm.push('割賦');
-    L.push(`支払方法：${pm.join('、')}`);
-    L.push(`初回分割支払金額：${prop.firstInstallment || ''}`);
-    L.push(`2回目以降分割支払金額：${prop.subsequentInstallment || ''}`);
-    L.push(`支払い回数：${prop.installmentCount || ''}`);
-
-    // ドメイン情報
-    const dom = d.domain || {};
-    L.push(`メールアドレス：${dom.email || ''}`);
-    L.push(`登記年月日：${dom.registrationDate || ''}`);
-    const dc = [];
-    if (dom.domainNew) dc.push('新規');
-    if (dom.domainTransfer) dc.push('移行');
-    L.push(`ドメイン区分：${dc.join('、')}`);
-    L.push(`ドメイン欄：${dom.domainName || ''}`);
-    L.push(`英文表記：${dom.englishName || ''}`);
-
-    // 末尾
-    L.push(`申込日：${d.applicationDate || ''}`);
-    L.push(`営業担当者氏名：${d.salesRepName || ''}`);
-    L.push(`営業担当者メールアドレス：${d.salesRepEmail || ''}`);
-    L.push(`お客様氏名：${d.signerName || ''}`);
-    L.push(`お客様メールアドレス：${d.signerEmail || ''}`);
-    L.push('※※※※※※※※※※※※※※※※※');
-
-    return L.join('\r\n');
-}
 
 function goToComplete() {
     document.getElementById('step-input').style.display = 'none';
@@ -1141,6 +1035,7 @@ function fillFormData(d) {
             if (inputs[5]) inputs[5].value = s.city || '';
             if (inputs[6]) inputs[6].value = s.town || '';
             if (inputs[7]) inputs[7].value = s.block || '';
+            if (inputs[8]) inputs[8].value = s.additionalAddress || '';
         });
     }
 
@@ -1229,7 +1124,13 @@ function fillFormData(d) {
 
 function setVal(id, val) {
     const el = document.getElementById(id);
-    if (el) el.value = val || '';
+    if (el) {
+        if (el._flatpickr) {
+            el._flatpickr.setDate(val || '');
+        } else {
+            el.value = val || '';
+        }
+    }
 }
 
 function setCheck(id, bool) {
@@ -1249,7 +1150,7 @@ function checked(id) {
 
 function collectStoreData() {
     const stores = [];
-    document.querySelectorAll('.store-entry').forEach(entry => {
+    document.querySelectorAll('#storeContainer .store-entry').forEach(entry => {
         const inputs = entry.querySelectorAll('input');
         if (inputs.length < 3) return; // 商品行や契約行をスキップ
         stores.push({
@@ -1261,6 +1162,7 @@ function collectStoreData() {
             city: inputs[5]?.value || '',
             town: inputs[6]?.value || '',
             block: inputs[7]?.value || '',
+            additionalAddress: inputs[8]?.value || '',
         });
     });
     return stores;

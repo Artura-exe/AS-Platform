@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=4">
     <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_red.css">
@@ -118,24 +118,29 @@
                         </div>
                     </div>
 
-                    <!-- 電話番号 + FAX -->
+                    <!-- 電話番号 -->
                     <div class="form-row">
                         <div class="form-label"><span class="required">※</span>電話番号</div>
                         <div class="form-value">
                             <input type="tel" id="phone" class="input-md" placeholder="00000000000" inputmode="numeric"
                                 oninput="validateNumeric(this)">
-                            <span class="sub-label">FAX</span>
-                            <input type="tel" id="fax" class="input-sm" placeholder="FAX番号" inputmode="numeric"
+                        </div>
+                    </div>
+
+                    <!-- 第2連絡先 -->
+                    <div class="form-row">
+                        <div class="form-label">第2連絡先</div>
+                        <div class="form-value">
+                            <input type="tel" id="phone2" class="input-md" placeholder="電話番号" inputmode="numeric"
                                 oninput="validateNumeric(this)">
                         </div>
                     </div>
 
-                    <!-- 第二連絡先 -->
-                    <div class="form-row">
-                        <div class="form-label">第二連絡先</div>
+                    <!-- FAX -->
+                    <div class="form-row full-width">
+                        <div class="form-label">FAX</div>
                         <div class="form-value">
-                            <span class="sub-label">電話番号</span>
-                            <input type="tel" id="phone2" class="input-md" placeholder="電話番号" inputmode="numeric"
+                            <input type="tel" id="fax" class="input-sm" placeholder="FAX番号" inputmode="numeric"
                                 oninput="validateNumeric(this)">
                         </div>
                     </div>
@@ -175,7 +180,7 @@
 
                     <!-- 付番住所 -->
                     <div class="form-row full-width">
-                        <div class="form-label">付番住所</div>
+                        <div class="form-label">付帯住所</div>
                         <div class="form-value">
                             <input type="text" id="additionalAddress" class="input-xl" placeholder="建物名・号室等">
                         </div>
@@ -191,6 +196,8 @@
                 </div>
                 <div class="store-actions">
                     <button type="button" class="btn btn-secondary btn-sm" onclick="addStoreEntry()">＋ 店舗を追加</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="copyContractInfoToStore()"
+                        style="margin-left: 8px;">契約情報を引用（同上）</button>
                 </div>
             </div>
 
@@ -484,10 +491,19 @@
 
     </div>
 
+    <!-- ===== ローディング画面（全画面） ===== -->
+    <div id="fullScreenLoader" class="fullscreen-loader" style="display:none;">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <div class="loader-text">送信中...</div>
+            <div class="loader-subtext">画面を閉じたり更新したりせずにお待ちください</div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="js/app.js?v=3"></script>
+    <script src="js/app.js?v=4"></script>
 </body>
 
 </html>
